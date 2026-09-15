@@ -239,15 +239,4 @@ def add_trainee(root, nom_prenom):
         "subjects": result_subjects
     }
 
-# test
-root ="/Users/steph.barois.dev/Downloads/python"
-stg_1 = "toto_otto"
-stg_2 = "bu_amede"
 
-result_1 = add_trainee(root,stg_1)
-
-print(result_1)
-
-result_2 = add_trainee(root,stg_2)
-
-print(result_2)

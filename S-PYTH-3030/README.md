@@ -35,7 +35,7 @@ Son rôle est de centraliser la **gestion des connexions aux fichiers**.
 
 L'objectif est de ne pas disperser les appels à `open()` et `close()` dans les différentes fonctionnalités de l'application.
 
-![Architecture du module](images/gestion_file_connection.png)
+![Architecture du module](./images/gestion_file_connection.png)
 
 Nous commençons ainsi à mettre en place une séparation des responsabilités dans notre projet.
 

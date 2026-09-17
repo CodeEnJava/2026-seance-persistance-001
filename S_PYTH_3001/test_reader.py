@@ -1,63 +1,82 @@
-from file_connection import open_connection, BINARY_READ_MODE
-# importq
-from reader import read_text_aux, read_text, read_binary_aux, read_binary
+"""
+Tests du module `reader`.
 
-# Test N°1
-# Utilisation de la fonction read_text_aux
+Ce module permet de tester la lecture de fichiers texte et binaires
+à l'aide des fonctions fournies par le module `reader`.
 
-# Il faut réaliser une connexion vers le fichier
-path = "/Users/steph.barois.dev/Downloads/python/Gestions/exemple.rtf"
-obj_cnx = open_connection(path) # mode READ_ONLY_MODE par défaut
+Les tests permettent notamment de vérifier :
 
-datas = read_text_aux(obj_cnx)
+- l'ouverture d'un fichier existant ;
+- la lecture d'un fichier texte à partir d'une connexion ouverte ;
+- la lecture d'un fichier texte directement avec `read_text()` ;
+- la lecture d'un fichier binaire avec `read_binary()` ;
+- le comportement du programme lorsqu'un fichier n'existe pas.
+"""
 
-print(datas)
+# =============================================================
+# Imports
+# =============================================================
 
-path = "/Users/steph.barois.dev/Downloads/python/Gestions/exemple1.rtf"
-obj_cnx = open_connection(path) # mode READ_ONLY_MODE par défaut
-if obj_cnx is not None:
-    datas = read_text_aux(obj_cnx)
-    print(datas)
+from file_connection import (
+    open_connection,
+    READ_ONLY_MODE
+)
+from reader import (
+    read_text,
+    read_text_aux,
+    read_binary,
+    DATA,
+    ERROR
+)
+
+
+
+
+
+# =============================================================
+# Test 1 : lecture d'un fichier texte à partir d'une connexion
+# =============================================================
+
+filename = "/Users/steph.barois.dev/Downloads/python/Gestions/exemple.txt"
+
+# Pour générer une erreur, activer la ligne suivante :
+# filename = "/Users/steph.barois.dev/Downloads/python/Gestions/exemple1.txt"
+
+file_cnx = open_connection(filename, READ_ONLY_MODE)
+
+if file_cnx is not None:
+
+    read = read_text_aux(file_cnx)
+
+    if read[DATA] is not None:
+        print("OK")
+        print(read[DATA])
+    else:
+        print("PAS OK")
+        print(read[ERROR])
+
 else:
-    print("La connexion vers le fichier a échoué.")
+    print(f"Le fichier {filename}\nn'existe pas...")
 
-# test N°2
-# utilisation de la fonction read_test(filename)
-print("*"*100)
-print("Test N°2 : la fonction read_txt")
-path_txt = "/Users/steph.barois.dev/Downloads/python/Gestions/exemple.txt"
+
+# =============================================================
+# Test 2 : lecture directe d'un fichier texte
+# =============================================================
+
+texte = read_text(filename)
+
+print(texte)
+
+
+# =============================================================
+# Test 3 : lecture d'un fichier binaire
+# =============================================================
+
+filename_image = "/Users/steph.barois.dev/Downloads/python/Gestions/image.png"
+
 # Pour générer une erreur, activer la ligne suivante :
-# path_txt = "/Users/steph.barois.dev/Downloads/python/Gestions/image10.png"
-# path_txt = "/Users/steph.barois.dev/Downloads/python/Gestions/exemple10.txt"
-data_txt = read_text(path_txt)
+# filename_image = "/Users/steph.barois.dev/Downloads/python/Gestions/image.gnp"
 
-print(data_txt)
+binaire = read_binary(filename_image)
 
-
-# test N°3
-# Utilisation de la fonction read_binary_aux
-print("*"*100)
-print("Test N°3 : la fonction read_binary_aux")
-
-# Il faut réaliser une connexion vers le fichier
-path = "/Users/steph.barois.dev/Downloads/python/Gestions/image.png"
-# Pour générer une erreur, activer la ligne suivante :
-# path = "/Users/steph.barois.dev/Downloads/python/Gestions/image10.png"
-obj_cnx = open_connection(path,BINARY_READ_MODE)
-if obj_cnx is not None:
-    data_png = read_binary_aux(obj_cnx)
-    print(data_png)
-else:
-    print("La connexion entre API et le fichier n'a pas été réalisée.")
-
-
-# test N°4
-# utilisation de la fonction read_binary(filename)
-print("*"*100)
-print("Test N°4 : la fonction read_binary")
-path_image = "/Users/steph.barois.dev/Downloads/python/Gestions/image.png"
-# Pour générer une erreur, activer la ligne suivante :
-# path_image = "/Users/steph.barois.dev/Downloads/python/Gestions/image10.png"
-data_image = read_binary(path_image)
-
-print(data_image)
+print(binaire)

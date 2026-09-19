@@ -1,7 +1,12 @@
+from io import (
+    SEEK_END,
+    SEEK_SET
+)
+
 from S_PYTH_3001.file_connection import (
     TEXT_IO_WRAPPER,
     BINARY_READ_MODE,
-    BUFFERED_READER
+    BUFFERED_READER, is_obj_connection
 )
 from file_connection import (
     open_connection,
@@ -220,4 +225,207 @@ def read_binary(filename):
         return data[DATA]
 
     print(data[ERROR])
+    return None
+
+
+# Mettre en place une fonction pour connaitre la taille d'un fichier
+
+def size(obj_cnx):
+    """
+
+    :param obj_cnx:
+    :return:
+    """
+    current_position = obj_cnx.tell()
+
+    # aller à fin du fichier
+    obj_cnx.seek(0,SEEK_END)
+    length = obj_cnx.tell()
+    # il faut replacer le curseur dans la position initiale
+    obj_cnx.seek(current_position)
+
+    return length
+
+# mettre en place une fonction pour lire un bloc de données à partir du début du fichier
+
+def read_nb_char_aux(obj_cnx, nb_car, start=0):
+
+    if not isinstance(obj_cnx,TEXT_IO_WRAPPER):
+        raise TypeError(f"Le paramètre doit être un objet du type {TEXT_IO_WRAPPER}.")
+
+    if not isinstance(nb_car,int):
+        raise TypeError("Le second paramètre doit-être un objet de type int.")
+
+    file_size = size(obj_cnx)
+
+    if nb_car <= 0 or nb_car >file_size:
+        raise ValueError(f"La valeur doit-être comprise entre 1 et {file_size}.")
+    try:
+        obj_cnx.seek(start)
+
+        data_txt = obj_cnx.read(nb_car)
+
+        close_connection(obj_cnx)
+
+        return {
+            DATA:data_txt,
+            STATUS:CLOSED,
+            ERROR:"Pas d'erreur"
+        }
+    except ValueError as error:
+        if obj_cnx.closed:
+            return {
+                DATA: None,
+                STATUS: CLOSED,
+                ERROR: "Impossible de lire la connexion est fermée."
+            }
+        return {
+            DATA: None,
+            STATUS: CLOSED,
+            ERROR: error
+        }
+
+def read_nb_char(filename,nb_char):
+
+    obj_cnx = open_connection(filename) # mode par défaut READ_ONLY_MODE
+
+    if obj_cnx is None:
+        print(f"Le fichier :{filename} \nn'a pas été trouvé.")
+        return None
+
+    data = read_nb_char_aux(obj_cnx,nb_char)
+
+    if data[DATA] is not None:
+        return data[DATA]
+
+    print(f"{data[ERROR]}")
+    return None
+
+def read_char_range(filename, start, end):
+
+    obj_cnx = open_connection(filename)  # mode par défaut READ_ONLY_MODE
+
+    if obj_cnx is None:
+        print(f"Le fichier :{filename} \nn'a pas été trouvé.")
+        return None
+
+    if not isinstance(start,int):
+        raise (
+            TypeError("Le second paramètre doit-être un objet de type int."))
+
+    if not isinstance(end,int):
+        raise (
+            TypeError("Le dernier paramètre doit-être un objet de type int."))
+
+    if start < 0:
+        raise (
+            ValueError("La valeur du paramètre 'start' doit-être supérieure ou égale à 0"))
+
+    if end <= start:
+        raise (
+            ValueError("La valeur du paramètre 'end' doit-être supérieure à celle de 'start'."))
+
+    # start est une valeur inclusive
+    # end est une valeur exclusive
+
+    nb_char = end - start
+
+    data = read_nb_char_aux(obj_cnx, nb_char,start)
+
+    if data[DATA] is not None:
+        return data[DATA]
+
+    print(f"{data[ERROR]}")
+    return None
+
+# ---------- BINAIRE --------------
+
+def read_nb_byte_aux(obj_cnx, nb_byte, start=0):
+
+    if not isinstance(obj_cnx,BUFFERED_READER):
+        raise TypeError(f"Le paramètre doit être un objet du type {BUFFERED_READER}.")
+
+    if not isinstance(nb_byte,int):
+        raise TypeError("Le second paramètre doit-être un objet de type int.")
+
+    file_size = size(obj_cnx)
+
+    if nb_byte <= 0 or nb_byte >file_size:
+        raise ValueError(f"La valeur doit-être comprise entre 1 et {file_size}.")
+    try:
+        obj_cnx.seek(start)
+
+        data_byte = obj_cnx.read(nb_byte)
+
+        close_connection(obj_cnx)
+
+        return {
+            DATA:data_byte,
+            STATUS:CLOSED,
+            ERROR:"Pas d'erreur"
+        }
+    except ValueError as error:
+        if obj_cnx.closed:
+            return {
+                DATA: None,
+                STATUS: CLOSED,
+                ERROR: "Impossible de lire la connexion est fermée."
+            }
+        return {
+            DATA: None,
+            STATUS: CLOSED,
+            ERROR: error
+        }
+
+def read_nb_byte(filename,nb_byte):
+
+    obj_cnx = open_connection(filename,BINARY_READ_MODE) # mode par défaut READ_ONLY_MODE
+
+    if obj_cnx is None:
+        print(f"Le fichier :{filename} \nn'a pas été trouvé.")
+        return None
+
+    data = read_nb_byte_aux(obj_cnx,nb_byte)
+
+    if data[DATA] is not None:
+        return data[DATA]
+
+    print(f"{data[ERROR]}")
+    return None
+
+def read_byte_range(filename, start, end):
+
+    obj_cnx = open_connection(filename,BINARY_READ_MODE)  # mode par défaut READ_ONLY_MODE
+
+    if obj_cnx is None:
+        print(f"Le fichier :{filename} \nn'a pas été trouvé.")
+        return None
+
+    if not isinstance(start,int):
+        raise (
+            TypeError("Le second paramètre doit-être un objet de type int."))
+
+    if not isinstance(end,int):
+        raise (
+            TypeError("Le dernier paramètre doit-être un objet de type int."))
+
+    if start < 0:
+        raise (
+            ValueError("La valeur du paramètre 'start' doit-être supérieure ou égale à 0"))
+
+    if end <= start:
+        raise (
+            ValueError("La valeur du paramètre 'end' doit-être supérieure à celle de 'start'."))
+
+    # start est une valeur inclusive
+    # end est une valeur exclusive
+
+    nb_char = end - start
+
+    data = read_nb_byte_aux(obj_cnx, nb_char,start)
+
+    if data[DATA] is not None:
+        return data[DATA]
+
+    print(f"{data[ERROR]}")
     return None

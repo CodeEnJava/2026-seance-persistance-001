@@ -93,7 +93,7 @@ def create_directory(root, directory_name):
     # le second paramètre est un paramètre optionnel, par défaut à dir
     if not isinstance(directory_name, str):
         raise TypeError("Le second paramètre doit être une "
-                        "chaine de caractères, quii contient le nom du dossier à créer.")
+                        "chaine de caractères, qui contient le nom du dossier à créer.")
 
     if not check_path(root):
         return -1
@@ -110,19 +110,19 @@ def list_directory(root):
     """
         Liste les fichiers et les dossiers contenus dans un répertoire.
 
-        Le contenu du répertoire indiqué par ``root`` est analysé et classé
+        Le contenu du répertoire indiqué par `root` est analysé et classé
         dans un dictionnaire contenant deux listes :
 
-        - ``dir`` : noms des sous-répertoires ;
-        - ``file`` : noms des fichiers.
+        - `dir` : noms des sous-répertoires ;
+        - `file` : noms des fichiers.
 
         :param root: Chemin du répertoire à analyser.
         :type root: str
         :return: Dictionnaire contenant les listes des dossiers et des fichiers.
         :rtype: dict
-        :raises TypeError: Si ``root`` n'est pas une chaîne de caractères.
+        :raises TypeError: Si `root` n'est pas une chaîne de caractères.
         :raises FileNotFoundError: Si le chemin indiqué n'existe pas.
-        :raises NotADirectoryError: Si ``root`` ne désigne pas un répertoire.
+        :raises NotADirectoryError: Si `root` ne désigne pas un répertoire.
     """
     if not isinstance(root, str):
         raise TypeError("Le premier paramètre doit être une "
@@ -182,7 +182,7 @@ def create_trainee_space(root, name) :
     """
     return create_directory(root,TRAINEE_PREFIX+name)
 
-def create_subject_directories(trainee_path):
+def create_subject_directories(root):
     """
     Crée les répertoires correspondant aux matières de formation.
 

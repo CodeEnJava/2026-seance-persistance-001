@@ -249,7 +249,17 @@ def size(obj_cnx):
 # mettre en place une fonction pour lire un bloc de données à partir du début du fichier
 
 def read_nb_char_aux(obj_cnx, nb_car, start=0):
+    """
+        Lit un nombre défini de caractères à partir d'une position donnée.
 
+        La position de départ est incluse dans la lecture.
+
+        :param obj_cnx: connexion ouverte vers un fichier texte
+        :param nb_car: nombre de caractères à lire
+        :param start: position de départ du pointeur de lecture
+        :return: dictionnaire contenant les données lues, le statut
+                 de la connexion et une éventuelle erreur
+    """
     if not isinstance(obj_cnx,TEXT_IO_WRAPPER):
         raise TypeError(f"Le paramètre doit être un objet du type {TEXT_IO_WRAPPER}.")
 
@@ -286,7 +296,13 @@ def read_nb_char_aux(obj_cnx, nb_car, start=0):
         }
 
 def read_nb_char(filename,nb_char):
+    """
+        Lit un nombre défini de caractères dans un fichier texte.
 
+        :param filename: nom ou chemin du fichier
+        :param nb: nombre de caractères à lire
+        :return: caractères lus ou None en cas d'erreur
+    """
     obj_cnx = open_connection(filename) # mode par défaut READ_ONLY_MODE
 
     if obj_cnx is None:
@@ -302,7 +318,23 @@ def read_nb_char(filename,nb_char):
     return None
 
 def read_char_range(filename, start, end):
+    """
+        Lit une portion d'un fichier texte entre deux positions.
 
+        La position 'start' est incluse.
+        La position 'end' est exclusive.
+
+        Exemple :
+            start = 5
+            end = 10
+
+        Les caractères situés aux positions 5 à 9 sont lus.
+
+        :param filename: nom ou chemin du fichier
+        :param start: position de départ incluse
+        :param end: position de fin exclusive
+        :return: caractères lus ou None en cas d'erreur
+    """
     obj_cnx = open_connection(filename)  # mode par défaut READ_ONLY_MODE
 
     if obj_cnx is None:
@@ -341,7 +373,17 @@ def read_char_range(filename, start, end):
 # ---------- BINAIRE --------------
 
 def read_nb_byte_aux(obj_cnx, nb_byte, start=0):
+    """
+       Lit un nombre défini d'octets à partir d'une position donnée.
 
+       La position de départ est incluse dans la lecture.
+
+       :param obj_cnx: Connexion ouverte vers un fichier binaire
+       :param nb_byte: Nombre d'octets à lire
+       :param start: Position de départ du pointeur de lecture
+       :return: Dictionnaire contenant les données lues, le statut
+                de la connexion et une éventuelle erreur
+    """
     if not isinstance(obj_cnx,BUFFERED_READER):
         raise TypeError(f"Le paramètre doit être un objet du type {BUFFERED_READER}.")
 
@@ -378,7 +420,13 @@ def read_nb_byte_aux(obj_cnx, nb_byte, start=0):
         }
 
 def read_nb_byte(filename,nb_byte):
+    """
+        Lit un nombre défini d'octets dans un fichier binaire.
 
+        :param filename: nom ou chemin du fichier
+        :param nb: nombre d'octets à lire
+        :return: octets lus ou None en cas d'erreur
+    """
     obj_cnx = open_connection(filename,BINARY_READ_MODE) # mode par défaut READ_ONLY_MODE
 
     if obj_cnx is None:
@@ -394,7 +442,23 @@ def read_nb_byte(filename,nb_byte):
     return None
 
 def read_byte_range(filename, start, end):
+    """
+        Lit une portion d'un fichier binaire entre deux positions.
 
+        La position 'start' est incluse.
+        La position 'end' est exclusive.
+
+        Exemple :
+            start = 5
+            end = 10
+
+        Les octets situés aux positions 5 à 9 sont lus.
+
+        :param filename: Nom ou chemin du fichier
+        :param start: Position de départ incluse
+        :param end: Position de fin exclusive
+        :return: Octets lus ou None en cas d'erreur
+    """
     obj_cnx = open_connection(filename,BINARY_READ_MODE)  # mode par défaut READ_ONLY_MODE
 
     if obj_cnx is None:

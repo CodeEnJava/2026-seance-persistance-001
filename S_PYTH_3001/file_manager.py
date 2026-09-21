@@ -249,15 +249,44 @@ def add_trainee(root, nom_prenom):
 
 def create_file(root, filename, encoding =None):
     """
-        La docString sera réalisée hors vidéo et déposé dans le github
+        Crée un nouveau fichier dans un répertoire existant.
+
+        La fonction vérifie la validité des paramètres et du chemin fourni.
+        Elle vérifie également que le fichier n'existe pas déjà avant de
+        procéder à sa création.
+
         Args:
-            root:
-            filename:
-            encoding:
+            root (str):
+                Chemin du répertoire dans lequel le fichier doit être créé.
+
+            filename (str):
+                Nom du fichier à créer.
+
+            encoding (str | None, optional):
+                Encodage utilisé pour créer le fichier.
+                Si la valeur est "utf-8", le fichier est créé explicitement
+                avec l'encodage UTF-8. Par défaut, aucun encodage particulier
+                n'est spécifié.
 
         Returns:
+            bool | None:
+                Retourne True si le fichier a été créé avec succès.
+                Retourne None si le fichier existe déjà.
 
-    """
+        Raises:
+            TypeError:
+                Si root ou filename n'est pas une chaîne de caractères.
+
+            ValueError:
+                Si le chemin root n'est pas valide.
+
+        Examples:
+            >>> create_file("data", "notes.txt")
+            True
+
+            >>> create_file("data", "notes.txt", "utf-8")
+            True
+        """
     if not isinstance(root, str):
         raise TypeError(
             "Le paramètre doit être une chaine de caractères, contenant un chemin."
@@ -292,13 +321,32 @@ def create_file(root, filename, encoding =None):
 
 def delete_file(filename):
     """
-    La docString sera réalisée hors vidéo et déposé dans le github
-    Args:
-        filename:
+       Supprime un fichier existant.
 
-    Returns:
+       La fonction vérifie que le paramètre fourni est une chaîne de
+       caractères et que le fichier existe avant de procéder à sa
+       suppression.
 
-    """
+       Args:
+           filename (str):
+               Chemin complet du fichier à supprimer.
+
+       Returns:
+           bool:
+               Retourne True si le fichier a été supprimé avec succès.
+               Retourne False si le fichier n'existe pas.
+
+       Raises:
+           TypeError:
+               Si filename n'est pas une chaîne de caractères.
+
+       Examples:
+           >>> delete_file("data/notes.txt")
+           True
+
+           >>> delete_file("data/fichier_inexistant.txt")
+           False
+       """
     if not isinstance(filename, str):
         raise TypeError(
             "Le paramètre doit être une chaine de caractères, contenant le nom du fichier à créer."

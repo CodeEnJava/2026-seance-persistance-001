@@ -1,7 +1,7 @@
 import os
-import stat
-import subprocess
+from pathlib import Path
 
+from params_connection import WRITE_ONLY_MODE
 
 
 def check_path(path, path_type="dir"):
@@ -242,6 +242,76 @@ def add_trainee(root, nom_prenom):
         "trainee":result_trainee,
         "subjects": result_subjects
     }
+
+
+
+# Ajouter la fonction create_file
+
+def create_file(root, filename, encoding =None):
+    """
+        La docString sera réalisée hors vidéo et déposé dans le github
+        Args:
+            root:
+            filename:
+            encoding:
+
+        Returns:
+
+    """
+    if not isinstance(root, str):
+        raise TypeError(
+            "Le paramètre doit être une chaine de caractères, contenant un chemin."
+        )
+
+    if not isinstance(filename, str):
+        raise TypeError(
+            "Le paramètre doit être une chaine de caractères, contenant le nom du fichier à créer."
+        )
+
+    if not check_path(root):
+        raise ValueError(
+            f"Le chemin {root} n'est pas valide"
+        )
+
+    new_filename = os.path.join(root, filename)
+    if check_path(new_filename, "file"):
+        print(
+            f"Le fichier {new_filename}, existe déjà, veuillez choisir un autre nom pour le fichier."
+        )
+        return None
+
+    if encoding == "utf-8":
+        with open(new_filename, WRITE_ONLY_MODE,encoding="utf-8"):
+            pass
+
+    else :
+            with open(new_filename, WRITE_ONLY_MODE):
+                pass
+
+    return True
+
+def delete_file(filename):
+    """
+    La docString sera réalisée hors vidéo et déposé dans le github
+    Args:
+        filename:
+
+    Returns:
+
+    """
+    if not isinstance(filename, str):
+        raise TypeError(
+            "Le paramètre doit être une chaine de caractères, contenant le nom du fichier à créer."
+        )
+
+
+    if not check_path(filename,"file"):
+         print(
+            f"Le fichier {filename} n'existe pas.")
+         return False
+    os.remove(filename)
+    return True
+
 
 
 

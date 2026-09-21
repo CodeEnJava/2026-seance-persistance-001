@@ -264,13 +264,132 @@ Responsabilité du module :
 
 ## Application au projet
 
-Un fichier mensuel pourra contenir plusieurs notes :
+# Structure des fichiers de notes
+
+## Format d'un enregistrement
+
+Dans le cadre du projet **Gestionnaire de notes**, les notes sont stockées dans des fichiers texte encodés en **UTF-8**.
+
+Afin de faciliter la lecture, la recherche et l'accès direct aux données, chaque enregistrement possède une **structure à longueur fixe**.
+
+Un enregistrement correspond à une note attribuée à un stagiaire.
+
+### Structure
+
+| Champ         | Format                       |         Taille |
+| ------------- | ---------------------------- | -------------: |
+| `date`        | `yyyy-mm-dd`                 |      10 octets |
+| `reference`   | `S-PYTH-3000-00`             |      14 octets |
+| `type`        | `EVALUATION`, `TP`, `PROJET` |      10 octets |
+| `note`        | `##.##`                      |       5 octets |
+| `observation` | texte                        |     100 octets |
+| **Total**     |                              | **139 octets** |
+
+### Exemple
+
+Un enregistrement peut être représenté ainsi :
 
 ```text
-12
-15
-18
+2026-09-19S-PYTH-3000-00EVALUATION15.50Très bon travail sur la lecture des fichiers
+```
+
+La structure logique est :
+
+```text
+┌──────────┬────────────────┬──────────┬─────┬───────────────────────────────────────────────────────────────┐
+│ Date     │ Référence      │ Type     │Note │ Observation                                                    │
+│ 10 oct.  │ 14 octets      │ 10 oct.  │5    │ 100 octets                                                     │
+└──────────┴────────────────┴──────────┴─────┴───────────────────────────────────────────────────────────────┘
+
+                         Taille totale : 139 octets
+```
+
+## Champ `type`
+
+Trois types de notes sont prévus :
+
+```text
+EVALUATION
+TP
+PROJET
+```
+
+Le champ possède une largeur fixe de **10 octets**.
+
+Les valeurs plus courtes sont complétées par des espaces :
+
+```text
+EVALUATION
+TP        
+PROJET    
+```
+
+Ainsi, quelle que soit la valeur utilisée, le champ occupe toujours **10 octets**.
+
+## Encodage UTF-8
+
+Les fichiers sont enregistrés en **UTF-8**.
+
+La taille d'une donnée doit donc être considérée en **octets** et non uniquement en nombre de caractères.
+
+Par exemple :
+
+```python
+texte = "EVALUATION"
+
+print(len(texte))
+print(len(texte.encode("utf-8")))
+```
+
+Résultat :
+
+```text
 10
+10
+```
+
+Pour garantir la longueur fixe des champs, il est recommandé de contrôler la taille avec :
+
+```python
+len(texte.encode("utf-8"))
+```
+
+## Accès à un enregistrement
+
+La longueur fixe de **139 octets** permet de déterminer directement la position d'un enregistrement dans le fichier.
+
+Par exemple, pour accéder au troisième enregistrement :
+
+```python
+position = 2 * 139
+```
+
+Puis :
+
+```python
+file.seek(position)
+```
+
+Le programme peut alors lire les **139 octets** correspondant à cet enregistrement.
+
+Cette organisation permettra au module `reader.py` de proposer progressivement des fonctions permettant :
+
+* de connaître la taille d'un fichier ;
+* de positionner le curseur de lecture ;
+* de lire un nombre précis d'octets ;
+* de lire un segment de données ;
+* d'accéder directement à un enregistrement.
+
+## Remarque
+
+La taille de **139 octets** correspond à la structure définie actuellement :
+
+```text
+10 + 14 + 10 + 5 + 100 = 139 octets
+```
+
+Cette structure constitue le format de référence utilisé par le projet **Gestionnaire de notes**.
+
 ```
 
 Le programme devra être capable de lire ces données afin de pouvoir ensuite les exploiter.

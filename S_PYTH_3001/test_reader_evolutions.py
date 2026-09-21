@@ -1,7 +1,7 @@
 import os
 
-from S_PYTH_3001.reader import read_binary, read_nb_byte_aux, read_nb_byte, read_byte_range
-from reader import (
+from S_PYTH_3001.file_reader import read_binary, read_nb_byte_aux, read_nb_byte, read_byte_range
+from file_reader import (
     size,
     read_nb_char_aux,
     read_text,

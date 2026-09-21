@@ -21,7 +21,7 @@ from file_connection import (
     open_connection,
     READ_ONLY_MODE
 )
-from reader import (
+from file_reader import (
     read_text,
     read_text_aux,
     read_binary,

@@ -372,7 +372,7 @@ file.seek(position)
 
 Le programme peut alors lire les **139 octets** correspondant à cet enregistrement.
 
-Cette organisation permettra au module `reader.py` de proposer progressivement des fonctions permettant :
+Cette organisation permettra au module `file_reader.py` de proposer progressivement des fonctions permettant :
 
 * de connaître la taille d'un fichier ;
 * de positionner le curseur de lecture ;

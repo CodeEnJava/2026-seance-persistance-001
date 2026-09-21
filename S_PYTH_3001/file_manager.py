@@ -244,3 +244,4 @@ def add_trainee(root, nom_prenom):
     }
 
 
+

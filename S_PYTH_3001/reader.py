@@ -1,15 +1,12 @@
 from io import (
-    SEEK_END,
-    SEEK_SET
+    SEEK_END
 )
-from pathlib import Path
 
 from S_PYTH_3001.file_connection import (
     TEXT_IO_WRAPPER,
     BINARY_READ_MODE,
-    BUFFERED_READER, is_obj_connection
+    BUFFERED_READER
 )
-from S_PYTH_3001.file_manager import check_path
 from file_connection import (
     open_connection,
     close_connection,

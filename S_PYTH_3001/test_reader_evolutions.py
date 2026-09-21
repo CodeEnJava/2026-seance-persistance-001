@@ -1,3 +1,5 @@
+import os
+
 from S_PYTH_3001.reader import read_binary, read_nb_byte_aux, read_nb_byte, read_byte_range
 from reader import (
     size,
@@ -13,10 +15,12 @@ from file_connection import (
 #------------------------------------------
 # Configurations
 #------------------------------------------
-
-filename_txt = "/Users/steph.barois.dev/Downloads/python/Gestions/exemple.txt"
-
-filename_picture = "/Users/steph.barois.dev/Downloads/python/Gestions/image.png"
+if os.name == "nt":
+    filename_txt = "C:\\Users\\stebar\\Python\\Gestions\\exemple.txt"
+    filename_picture = "C:\\Users\\stebar\\Python\\Gestions\\image.png"
+else:
+    filename_txt = "/Users/steph.barois.dev/Downloads/python/Gestions/exemple.txt"
+    filename_picture = "/Users/steph.barois.dev/Downloads/python/Gestions/image.png"
 
 #------------------------------------------
 # Objets de connexions

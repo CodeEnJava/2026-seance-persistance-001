@@ -1,5 +1,6 @@
 import _io
 
+
 from file_manager import check_path
 
 """
@@ -95,8 +96,6 @@ Exemple :
         close_connection(connection)
 """
 
-
-
 #===============================================
 # constantes
 #===============================================
@@ -132,6 +131,8 @@ BUFFERED_READER = _io.BufferedReader
 BUFFERED_WRITER = _io.BufferedWriter
 BUFFERED_RANDOM = _io.BufferedRandom
 TEXT_IO_WRAPPER = _io.TextIOWrapper
+
+
 
 
 def is_valid_mode(mode):

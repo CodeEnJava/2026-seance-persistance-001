@@ -1,6 +1,9 @@
 from S_PYTH_3001.file_writer import (
     insert_text,
-    get_cursor_position, get_cursor_end_position, get_cursor_start_position, insert_text_after_first_occurrence,
+    get_cursor_position,
+    get_cursor_end_position,
+    get_cursor_start_position,
+    insert_text_after_first_occurrence,
     insert_text_before_first_occurrence
 )
 

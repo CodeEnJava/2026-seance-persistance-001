@@ -153,28 +153,36 @@ def add_txt(filename,txt,append=True):
 
 
 def insert_text(filename, text, cursor):
-    """
+    """Insère une chaîne de caractères dans un fichier à une position donnée.
 
-    :param filename:
-    :param text:
-    :param cursor:
-    :return:
+    Args:
+        filename (str): Chemin complet du fichier à modifier.
+        text (str): Texte à insérer dans le fichier.
+        cursor (int): Position du curseur (index de caractère) où insérer le texte.
+
+    Returns:
+        dict or None:   - Un dictionnaire d'erreur avec code négatif si la longueur du texte
+                          est invalide (-1) ou si le fichier est trop court (-2).
+                        - None si l'opération s'est déroulée sans erreur.
+
+    Raises:
+        TypeError:  Si `text` n'est pas une chaîne de caractères,
+                    ou si `cursor` n'est pas un entier.
     """
-    if not isinstance(text,str):
+    if not isinstance(text, str):
         raise TypeError(
             "Le second paramètre doit-être une chaine de caractères, contenant le texte à insérer."
         )
 
-    if not isinstance(cursor,int):
+    if not isinstance(cursor, int):
         raise TypeError(
             "Le dernier paramètre doit-être un entier."
         )
 
     if len(text) < 1:
-        return {-1:"La longueur de la séquence n'est pas valide car < 1."}
+        return {-1: "La longueur de la séquence n'est pas valide car < 1."}
 
-    obj_cnx = open_connection(filename,READ_ONLY_MODE)
-
+    obj_cnx = open_connection(filename, READ_ONLY_MODE)
 
     # taille du fichier
     size_file = size(obj_cnx)
@@ -182,21 +190,30 @@ def insert_text(filename, text, cursor):
     if size_file < len(text):
         return {-2: f"le fichier ne contient pas la séquence :{text}."}
 
-    left = read_char_range(filename,0,cursor) + text
-    right = read_char_range(filename,cursor+1,size_file)
+    left = read_char_range(filename, 0, cursor) + text
+    right = read_char_range(filename, cursor + 1, size_file)
 
-    obj_cnx = open_connection(filename,WRITE_ONLY_MODE)
+    obj_cnx = open_connection(filename, WRITE_ONLY_MODE)
     obj_cnx.write(left + right)
 
     close_connection(obj_cnx)
 
 
 def get_cursor_position(filename, sequence):
-    """
+    """Recherche la première occurrence d'une séquence dans le texte d'un fichier.
 
-    :param filename:
-    :param sequence:
-    :return:
+    Args:
+        filename (str): Chemin complet du fichier à analyser.
+        sequence (str): Séquence de texte à rechercher.
+
+    Returns:
+        tuple or dict:  - Un tuple (int, int) contenant la position de début et de fin si la séquence est trouvée.
+                        - Un dictionnaire avec le code d'erreur -1 si la séquence fait < 1 caractère,
+                          -2 si la séquence est plus longue que le texte du fichier,
+                          ou -3 si la séquence n'a pas été trouvée.
+
+    Raises:
+        TypeError: Si `sequence` n'est pas une chaîne de caractères.
     """
     if not isinstance(sequence, str):
         raise TypeError(
@@ -208,7 +225,6 @@ def get_cursor_position(filename, sequence):
     if size_sequence < 1:
         return {-1: "La longueur de la séquence n'est pas valide car < 1."}
 
-
     text = read_text(filename)
 
     size_text = len(text)
@@ -217,76 +233,95 @@ def get_cursor_position(filename, sequence):
         return {-2: f"Cette séquence n'existe pas dans le texte du fichier."}
 
     for pointer in range(size_text):
-        if text[pointer:pointer+size_sequence] == sequence:
-            return pointer, pointer+size_sequence
-
+        if text[pointer:pointer + size_sequence] == sequence:
+            return pointer, pointer + size_sequence
 
     return {-3: f"Cette séquence n'a pas été trouvée dans le texte du fichier."}
 
 
 def get_cursor_start_position(filename, sequence):
-    """
+    """Retourne la position de début de la première occurrence d'une séquence.
 
-    :param filename:
-    :param sequence:
-    :return:
+    Args:
+        filename (str): Chemin complet du fichier à analyser.
+        sequence (str): Séquence de texte dont on cherche l'index de début.
+
+    Returns:
+        int or dict:    - La position de début (int) sous forme d'index si la séquence est trouvée.
+                        - Un dictionnaire avec la clé -1 si la séquence n'est pas trouvée.
     """
-    position = get_cursor_position(filename,sequence)
+    position = get_cursor_position(filename, sequence)
 
     # si le dictionnaire existe alors, il y a une erreur.
-    if isinstance(position,dict):
+    if isinstance(position, dict):
         # prévoir en retour le code d'erreur
-        return {-1:"La séquence non trouvée."}
+        return {-1: "La séquence non trouvée."}
     return position[0]
 
-def get_cursor_end_position(filename, sequence):
-    """
 
-    :param filename:
-    :param sequence:
-    :return:
+def get_cursor_end_position(filename, sequence):
+    """Retourne la position de fin de la première occurrence d'une séquence.
+
+    Args:
+        filename (str): Chemin complet du fichier à analyser.
+        sequence (str): Séquence de texte dont on cherche l'index de fin.
+
+    Returns:
+        int or dict:    - La position de fin (int) sous forme d'index si la séquence est trouvée.
+                        - Un dictionnaire avec la clé -1 si la séquence n'est pas trouvée.
     """
-    position = get_cursor_position(filename,sequence)
+    position = get_cursor_position(filename, sequence)
 
     # si le dictionnaire existe alors, il y a une erreur.
-    if isinstance(position,dict):
+    if isinstance(position, dict):
         # prévoir en retour le code d'erreur
-        return {-1:"La séquence non trouvée."}
+        return {-1: "La séquence non trouvée."}
     return position[1]
 
-def insert_text_after_first_occurrence(filename,text,sequence):
-    """
 
-    :param filename:
-    :param text:
-    :param sequence:
-    :return:
-    """
-    position = get_cursor_position(filename,sequence)
+def insert_text_after_first_occurrence(filename, text, sequence):
+    """Insère un texte juste après la première occurrence d'une séquence repère dans un fichier.
 
-    if isinstance(position,dict):
+    Args:
+        filename (str): Chemin complet du fichier à modifier.
+        text (str): Texte à insérer dans le fichier.
+        sequence (str): Séquence repère après laquelle placer le texte.
+
+    Returns:
+        dict:   - {1: "Insertion réalisée avec succès."} si l'insertion réussit.
+                - {-1: "..."} si la séquence n'a pas été trouvée.
+    """
+    position = get_cursor_position(filename, sequence)
+
+    if isinstance(position, dict):
         # prévoir en retour le code d'erreur
-        return {-1:"La séquence non trouvée, aucune modification a été effectuée dans le fichier."}
+        return {-1: "La séquence non trouvée, aucune modification a été effectuée dans le fichier."}
 
     cursor = position[1]
 
-    insert_text(filename,text,cursor)
+    insert_text(filename, text, cursor)
 
-    return {1:"Insertion réalisée avec succès."}
+    return {1: "Insertion réalisée avec succès."}
 
-def insert_text_before_first_occurrence(filename,text,sequence):
+
+def insert_text_before_first_occurrence(filename, text, sequence):
+    """Insère un texte juste avant la première occurrence d'une séquence repère dans un fichier.
+
+    Args:
+        filename (str): Chemin complet du fichier à modifier.
+        text (str): Texte à insérer dans le fichier.
+        sequence (str): Séquence repère avant laquelle placer le texte.
+
+    Returns:
+        dict:   - {1: "Insertion réalisée avec succès."} si l'insertion réussit.
+                - {-1: "..."} si la séquence n'est pas trouvée.
+                - {-2: "..."} si le fichier est plus court que le texte à insérer.
     """
+    position = get_cursor_position(filename, sequence)
 
-    :param filename:
-    :param text:
-    :param sequence:
-    :return:
-    """
-    position = get_cursor_position(filename,sequence)
-
-    if isinstance(position,dict):
+    if isinstance(position, dict):
         # prévoir en retour le code d'erreur
-        return {-1:"La séquence non trouvée, aucune modification a été effectuée dans le fichier."}
+        return {-1: "La séquence non trouvée, aucune modification a été effectuée dans le fichier."}
 
     cursor = position[0]
 
@@ -309,4 +344,3 @@ def insert_text_before_first_occurrence(filename,text,sequence):
     close_connection(obj_cnx)
 
     return {1: "Insertion réalisée avec succès."}
-

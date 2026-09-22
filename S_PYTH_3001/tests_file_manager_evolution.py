@@ -5,7 +5,7 @@ from S_PYTH_3001.file_manager import (
     delete_file
 )
 
-# tests dpour ajouter un nouveau fichier
+# tests pour ajouter un nouveau fichier
 
 path = "C:\\Users\\stebar\\Python\\Gestions"
 

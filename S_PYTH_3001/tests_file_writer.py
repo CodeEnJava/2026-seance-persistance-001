@@ -1,4 +1,13 @@
-from S_PYTH_3001.file_writer import append_txt, prepend, write_txt
+from S_PYTH_3001.file_writer import (
+    append_txt,
+    prepend,
+    add_txt,
+    insert_text, get_cursor_position,
+    get_cursor_start_position,
+    get_cursor_end_position,
+    insert_text_after_first_occurrence,
+    insert_text_before_first_occurrence
+)
 
 filename_txt = "/Users/steph.barois.dev/Downloads/python/Gestions/exemple.txt"
 
@@ -40,7 +49,7 @@ else:
 text_begin =" Mini projet : Gestionnaire de notes\n\n"
 text_end = "\nA bientôt pour la suite des aventures avec CodeEnJava"
 
-success = write_txt(filename_txt,text_begin,False)
+success = 0 #add_txt(filename_txt,text_begin,False)
 if success == 1:
     print("Ajout du texte au début.")
 elif success == 0:
@@ -48,7 +57,7 @@ elif success == 0:
 else:
     print("Impossible le fichier n'existe pas.")
 
-success = write_txt(filename_txt,text_end)
+success = 0 #add_txt(filename_txt,text_end)
 
 if success == 1:
     print("Ajout du texte à la fin.")
@@ -56,3 +65,4 @@ elif success == 0:
     print("Problème, ajout n'a pas pu être réalisé.")
 else:
     print("Impossible le fichier n'existe pas.")
+

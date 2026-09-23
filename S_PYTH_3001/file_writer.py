@@ -547,6 +547,7 @@ def replace_text(filename, old_text, new_text):
 
         print(f"start right = {position[1]+ 1+count+count_multibyte}")
         print(f"file size = {file_size}")
+        print(position)
         if position[1]+ 1+count+count_multibyte < file_size:
             right = read_char_range(filename, position[1]+ 1+count+count_multibyte, file_size)
 
@@ -556,9 +557,13 @@ def replace_text(filename, old_text, new_text):
         else:
             # prévoir une solution pour ce cas dans la prochaine vidéo
             # pour réaliser la modification à la fin du fichier
-            #
-            return {-2: "Impossible de réaliser cette modification car dépasse la taille du fichier."}
-
+            # en cours de test
+            right = read_char_range(filename, position[1]+count_multibyte, file_size)
+            # len_old_text = len(old_text)
+            # + right[len_old_text:]
+            obj_cnx = open_connection(filename, WRITE_ONLY_MODE)
+            obj_cnx.write(left + new_text )
+            close_connection(obj_cnx)
 
 
         return {1:"Remplacment a été réalisé"}

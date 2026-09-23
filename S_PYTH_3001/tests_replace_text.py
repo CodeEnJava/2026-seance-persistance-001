@@ -36,8 +36,8 @@ Pour la suite des histoires pour fichiers.
 """
 
 # le dernier test:
-old_text = "fichiers."
-new_text = "la persistance des données."
+old_text = "disque"
+new_text = "disque dur"
 
 result = replace_text(filename_text,old_text,new_text)
 print(result)

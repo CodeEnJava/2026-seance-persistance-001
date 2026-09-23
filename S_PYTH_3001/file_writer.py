@@ -1,7 +1,22 @@
-from S_PYTH_3001.file_connection import open_connection, close_connection
+from S_PYTH_3001.file_connection import (
+    open_connection,
+    close_connection
+)
+
 from S_PYTH_3001.file_manager import check_path
-from S_PYTH_3001.file_reader import read_text, read_char_range, size
-from S_PYTH_3001.params_connection import APPEND_MODE, WRITE_READ_MODE, READ_WRITE_MODE, WRITE_ONLY_MODE, READ_ONLY_MODE
+
+from S_PYTH_3001.file_reader import (
+    read_text,
+    read_char_range,
+    size, read_byte_range
+)
+
+from S_PYTH_3001.params_connection import (
+    APPEND_MODE,
+    WRITE_READ_MODE,
+    WRITE_ONLY_MODE,
+    READ_ONLY_MODE
+)
 
 
 
@@ -182,22 +197,34 @@ def insert_text(filename, text, cursor):
     if len(text) < 1:
         return {-1: "La longueur de la séquence n'est pas valide car < 1."}
 
+    if cursor < 0:
+        return {-1: "la valeur du curseur ne peut pas être inférieur à 0."}
+
     obj_cnx = open_connection(filename, READ_ONLY_MODE)
 
     # taille du fichier
     size_file = size(obj_cnx)
 
+    close_connection(obj_cnx)
+
+    print(f"size = {size_file}")
     if size_file < len(text):
         return {-2: f"le fichier ne contient pas la séquence :{text}."}
 
-    left = read_char_range(filename, 0, cursor) + text
-    right = read_char_range(filename, cursor + 1, size_file)
+    count = count_line_breaks(filename, 0, cursor)
+    count_multibyte = count_multibyte_chars(filename,0,cursor)
+    # on prend un de plus si celui après le curseur est un saut de ligne
+    left = read_char_range(filename, 0, cursor+1)
+    # on retire le caractère en trop
+    left = left[:-1]
+
+    right = read_char_range(filename, cursor + count+1 + count_multibyte, size_file)
 
     obj_cnx = open_connection(filename, WRITE_ONLY_MODE)
-    obj_cnx.write(left + right)
-
+    obj_cnx.write(left + text + right)
     close_connection(obj_cnx)
 
+    return {1: "Insertion réalisée avec succès."}
 
 def get_cursor_position(filename, sequence):
     """Recherche la première occurrence d'une séquence dans le texte d'un fichier.
@@ -344,3 +371,196 @@ def insert_text_before_first_occurrence(filename, text, sequence):
     close_connection(obj_cnx)
 
     return {1: "Insertion réalisée avec succès."}
+
+def validate_replace_text(filename, olt_text, new_text=""):
+    """
+
+    Args:
+        filename:
+        olt_text:
+        new_text:
+
+    Returns:
+
+    """
+    if not isinstance(filename,str):
+        raise TypeError(
+            "Le premier paramètre doit-être une chaine de caractères "
+            "qui représente le nom du fichier complet."
+        )
+
+    if not isinstance(olt_text,str):
+        raise TypeError(
+            "Le second paramètre doit-être une chaine de caractères "
+            "qui représente la séquence à remplacer."
+        )
+
+    if not isinstance(new_text, str):
+        raise TypeError(
+            "Le dernier paramètre doit-être une chaine de caractères "
+            "qui représente la nouvelle séquence."
+        )
+
+def contains_text(filename,old_text):
+    """
+
+    Args:
+        filename:
+        old_text:
+
+    Returns:
+
+    """
+    validate_replace_text(filename,old_text)
+    position = get_cursor_position(filename,old_text)
+
+    if isinstance(position,dict):
+        return False
+
+    return True
+
+def get_file_size(filename):
+    """
+
+    Args:
+        filename:
+
+    Returns:
+
+    """
+    if not isinstance(filename, str):
+        raise TypeError(
+            "Le premier paramètre doit-être une chaine de caractères "
+            "qui représente le nom du fichier complet."
+        )
+
+    obj_cnx = open_connection(filename)
+
+    if obj_cnx is None:
+        return 0
+
+    length = size(obj_cnx)
+
+    close_connection(obj_cnx)
+    return length
+
+def validat_count(filename,start,end):
+    """
+
+    Args:
+        filename:
+        start:
+        end:
+
+    Returns:
+
+    """
+    if not isinstance(filename, str):
+        raise TypeError(
+            "Le premier paramètre doit-être une chaine de caractères "
+            "qui représente le nom du fichier complet."
+        )
+
+    if not isinstance(start,int):
+        raise TypeError(
+            "le second paramètre doit-être un type int."
+        )
+
+    if not isinstance(end,int):
+        raise TypeError(
+            "le dernier paramètre doit-être un type int."
+        )
+
+def count_line_breaks(filename,start,end):
+    """
+
+    Args:
+        filename:
+        start:
+        end:
+
+    Returns:
+
+    """
+    validat_count(filename, start, end)
+
+    count = 0
+    text = read_char_range(filename, start, end)
+
+    for char in text:
+        if ord(char) == 10:
+            count += 1
+
+    return count
+
+def count_multibyte_char(filename, start, end):
+    """
+
+    Args:
+        filename:
+        start:
+        end:
+
+    Returns:
+
+    """
+    validat_count(filename, start, end)
+    count = 0
+    text = read_char_range(filename, start, end)
+
+    for char in text:
+        if len(char.encode("utf-8"))>1:
+            count += 1
+
+    return count
+
+def replace_text(filename, old_text, new_text):
+    """
+
+    Args:
+        filename:
+        olt_text:
+        new_text:
+
+    Returns:
+
+    """
+    validate_replace_text(filename,old_text,new_text)
+
+    # il faut vérifier si la chaine 'old_text est présent dans le fichier
+    if contains_text(filename, old_text):
+        # les traitements à faire
+        #  Bonjour comment allez-vous .....
+        #  remplacer allez-vous par vas-tu
+
+        file_size = get_file_size(filename)
+
+        position = get_cursor_position(filename,old_text)
+
+        count = 0
+        count_multibyte = 0
+        left = ""
+        if position[0] > 0:
+            count = count_line_breaks(filename,0, position[0])
+            count_multibyte = count_multibyte_char(filename,0, position[0])
+            left = read_char_range(filename,0, position[0])
+
+        print(f"start right = {position[1]+ 1+count+count_multibyte}")
+        print(f"file size = {file_size}")
+        if position[1]+ 1+count+count_multibyte < file_size:
+            right = read_char_range(filename, position[1]+ 1+count+count_multibyte, file_size)
+
+            obj_cnx = open_connection(filename,WRITE_ONLY_MODE)
+            obj_cnx.write(left + new_text + " " + right)
+            close_connection(obj_cnx)
+        else:
+            # prévoir une solution pour ce cas dans la prochaine vidéo
+            # pour réaliser la modification à la fin du fichier
+            #
+            return {-2: "Impossible de réaliser cette modification car dépasse la taille du fichier."}
+
+
+
+        return {1:"Remplacment a été réalisé"}
+    else:
+        return {-1:"Le text à remplacer n'a pas été trouvé. Echec du remplacement."}

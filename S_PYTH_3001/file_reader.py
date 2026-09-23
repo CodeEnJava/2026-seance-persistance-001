@@ -253,7 +253,7 @@ def read_nb_char_aux(obj_cnx, nb_car, start=0):
 
         La position de départ est incluse dans la lecture.
 
-        :param obj_cnx: connexion ouverte vers un fichier texte
+        :param obj_cnx: Connexion ouverte vers un fichier texte
         :param nb_car: nombre de caractères à lire
         :param start: position de départ du pointeur de lecture
         :return: dictionnaire contenant les données lues, le statut

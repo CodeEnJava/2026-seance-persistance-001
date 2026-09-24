@@ -13,7 +13,6 @@ Troisième ligne A bientôt.
 
 Pour la suite des aventures avec les fichiers.
 """
-from S_PYTH_3001.file_reader import read_text
 from S_PYTH_3001.file_writer import replace_text
 
 # filename_text = "C:\\Users\\stebar\\Python\\Gestions\\exemple.txt"

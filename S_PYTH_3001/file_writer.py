@@ -605,6 +605,7 @@ def replace_text(filename, old_text, new_text,debug=False):
 
         if right_start < file_size:
             right = read_char_range(filename,position[1]+count_multibyte,file_size)
+
         if debug:
             print(f"file_size = {file_size}")
             print(f"position = {position}")

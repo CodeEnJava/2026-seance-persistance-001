@@ -518,7 +518,27 @@ def count_multibyte_char(filename, start, end):
 
 
 def replace_text(filename, old_text, new_text,debug=False):
+    """
+    Remplace la première occurrence d'un texte par un nouveau texte dans un
+    fichier.
 
+    Args:
+        filename (str): Chemin complet du fichier à modifier.
+        old_text (str): Texte à rechercher et à remplacer.
+        new_text (str): Nouveau texte à insérer à la place de `old_text`.
+        debug (bool, optional): Active l'affichage des informations de débogage
+            (taille du fichier, positions, blocs de texte découpés).
+            Par défaut : False.
+
+    Returns:
+        dict:   - {1: "Remplacement a été réalisé"} si le remplacement est effectué.
+                - Un dictionnaire avec un code d'erreur négatif si `old_text`
+                  n'est pas trouvé ou en cas d'erreur de validation.
+
+    Raises:
+        TypeError: Si `debug` n'est pas un booléen, ou si l'un des paramètres texte
+            n'est pas une chaîne de caractères (via `validate_replace_text`).
+    """
     validate_replace_text(filename,old_text,new_text)
 
     if not isinstance(debug, bool):

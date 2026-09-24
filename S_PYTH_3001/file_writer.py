@@ -578,7 +578,6 @@ def replace_text(filename, old_text, new_text,debug=False):
             "le fonctionnement et comprendre utiliser True"
         )
 
-
     # il faut vérifier si la chaine 'old_text est présent dans le fichier
     if contains_text(filename, old_text):
         #  Les traitements à faire

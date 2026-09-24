@@ -515,8 +515,6 @@ def count_multibyte_char(filename, start, end):
 
     return count
 
-
-
 def replace_text(filename, old_text, new_text,debug=False):
     """
     Remplace la première occurrence d'un texte par un nouveau texte dans un

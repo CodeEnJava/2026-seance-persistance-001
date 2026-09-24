@@ -36,8 +36,8 @@ troisième ligne à bientôt
 ABCDEFGHIJKLMNOPQRSTUVWXYZ
 """
 
-old_text = "Mini"
-new_text = "Le"
+old_text = "3"
+new_text = "0"
 
 result = replace_text(filename_text,old_text,new_text,True)
 print(result)

@@ -596,9 +596,11 @@ def replace_text(filename, old_text, new_text,debug=False):
         count_multibyte = 0
         left = ""
         right = ""
+        space = " "
         count = 0
         # Vérifier que la séquence ne se trouve pas à la position 0
         if position[0] > 0:
+            space = ""
             count_multibyte = count_multibyte_char(filename,0,position[0])
             left = read_char_range(filename,0,position[0])
             if os.name == "NT":
@@ -607,7 +609,7 @@ def replace_text(filename, old_text, new_text,debug=False):
         right_start = (position[1] + count_multibyte)
 
         if right_start < file_size:
-            right = read_char_range(filename, position[1] + count_multibyte + count, file_size)
+            right = read_char_range(filename, position[1] + count_multibyte + count + 1, file_size)
 
         if debug:
             print(f"file_size = {file_size}")
@@ -617,11 +619,11 @@ def replace_text(filename, old_text, new_text,debug=False):
             print(right)
             print("-" * 100)
             print("contenu qui sera enregistré dans le fichier")
-            print(left + new_text + right)
+            print(left + new_text + space + right)
 
         # Enregistrement des modifications dans le fichier
         obj_cnx = open_connection(filename, WRITE_ONLY_MODE)
-        obj_cnx.write(left + new_text + right)
+        obj_cnx.write(left + new_text + space + right)
         close_connection(obj_cnx)
 
         return {1:"Remplacement a été réalisé"}

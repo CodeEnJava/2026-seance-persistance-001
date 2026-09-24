@@ -168,7 +168,8 @@ def add_txt(filename,txt,append=True):
 
 
 def insert_text(filename, text, cursor):
-    """Insère une chaîne de caractères dans un fichier à une position donnée.
+    """
+        Insère une chaîne de caractères dans un fichier à une position donnée.
 
     Args:
         filename (str): Chemin complet du fichier à modifier.
@@ -227,7 +228,8 @@ def insert_text(filename, text, cursor):
     return {1: "Insertion réalisée avec succès."}
 
 def get_cursor_position(filename, sequence):
-    """Recherche la première occurrence d'une séquence dans le texte d'un fichier.
+    """
+        Recherche la première occurrence d'une séquence dans le texte d'un fichier.
 
     Args:
         filename (str): Chemin complet du fichier à analyser.
@@ -267,7 +269,8 @@ def get_cursor_position(filename, sequence):
 
 
 def get_cursor_start_position(filename, sequence):
-    """Retourne la position de début de la première occurrence d'une séquence.
+    """
+        Retourne la position de début de la première occurrence d'une séquence.
 
     Args:
         filename (str): Chemin complet du fichier à analyser.
@@ -287,7 +290,8 @@ def get_cursor_start_position(filename, sequence):
 
 
 def get_cursor_end_position(filename, sequence):
-    """Retourne la position de fin de la première occurrence d'une séquence.
+    """
+        Retourne la position de fin de la première occurrence d'une séquence.
 
     Args:
         filename (str): Chemin complet du fichier à analyser.
@@ -307,7 +311,8 @@ def get_cursor_end_position(filename, sequence):
 
 
 def insert_text_after_first_occurrence(filename, text, sequence):
-    """Insère un texte juste après la première occurrence d'une séquence repère dans un fichier.
+    """
+        Insère un texte juste après la première occurrence d'une séquence repère dans un fichier.
 
     Args:
         filename (str): Chemin complet du fichier à modifier.
@@ -332,7 +337,8 @@ def insert_text_after_first_occurrence(filename, text, sequence):
 
 
 def insert_text_before_first_occurrence(filename, text, sequence):
-    """Insère un texte juste avant la première occurrence d'une séquence repère dans un fichier.
+    """
+        Insère un texte juste avant la première occurrence d'une séquence repère dans un fichier.
 
     Args:
         filename (str): Chemin complet du fichier à modifier.

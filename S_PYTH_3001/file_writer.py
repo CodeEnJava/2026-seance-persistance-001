@@ -606,7 +606,7 @@ def replace_text(filename, old_text, new_text,debug=False):
         count = 0
         # Vérifier que la séquence ne se trouve pas à la position 0
         if position[0] > 0:
-            space = ""
+            space = " "
             count_multibyte = count_multibyte_char(filename,0,position[0])
             left = read_char_range(filename,0,position[0])
             # prise en compte des sauts de lignes pour Windows uniquement
@@ -628,8 +628,9 @@ def replace_text(filename, old_text, new_text,debug=False):
             print("contenu qui sera enregistré dans le fichier")
             print(left + new_text + space + right)
 
-        # Enregistrement des modifications dans le fichier
+        # Enregistrement des modifications dans le fichier.
         obj_cnx = open_connection(filename, WRITE_ONLY_MODE)
+        # Après exécution le fichier est vide.
         obj_cnx.write(left + new_text + space + right)
         close_connection(obj_cnx)
 

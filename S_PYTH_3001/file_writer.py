@@ -372,6 +372,7 @@ def insert_text_before_first_occurrence(filename, text, sequence):
 
     return {1: "Insertion réalisée avec succès."}
 
+
 def validate_replace_text(filename, olt_text, new_text=""):
     """
 
@@ -514,58 +515,60 @@ def count_multibyte_char(filename, start, end):
 
     return count
 
-def replace_text(filename, old_text, new_text):
-    """
 
-    Args:
-        filename:
-        olt_text:
-        new_text:
 
-    Returns:
+def replace_text(filename, old_text, new_text,debug=False):
 
-    """
     validate_replace_text(filename,old_text,new_text)
+
+    if not isinstance(debug, bool):
+        raise TypeError(
+            "le dernier paramètre doit-être un boolean, la valeur par défaut "
+            "est False, si vous souhaitez afficher les paramètres pour analyser "
+            "le fonctionnement et comprendre utiliser True"
+        )
 
     # il faut vérifier si la chaine 'old_text est présent dans le fichier
     if contains_text(filename, old_text):
-        # les traitements à faire
+        #  Les traitements à faire
         #  Bonjour comment allez-vous .....
-        #  remplacer allez-vous par vas-tu
+        #  Remplacer 'allez-vous' par 'vas-tu'
 
+        # récupérer la taille du fichier
         file_size = get_file_size(filename)
 
+        # récupérer la position de la séquence dans le fichier
         position = get_cursor_position(filename,old_text)
 
-        count = 0
+        # initialisation des paramètres
         count_multibyte = 0
         left = ""
+        right = ""
+
+        # Vérifier que la séquence ne se trouve pas à la position 0
         if position[0] > 0:
-            count = count_line_breaks(filename,0, position[0])
-            count_multibyte = count_multibyte_char(filename,0, position[0])
-            left = read_char_range(filename,0, position[0])
+            count_multibyte = count_multibyte_char(filename,0,position[0])
+            left = read_char_range(filename,0,position[0])
 
-        print(f"start right = {position[1]+ 1+count+count_multibyte}")
-        print(f"file size = {file_size}")
-        print(position)
-        if position[1]+ 1+count+count_multibyte < file_size:
-            right = read_char_range(filename, position[1]+ 1+count+count_multibyte, file_size)
+        right_start = (position[1]+count_multibyte)
 
-            obj_cnx = open_connection(filename,WRITE_ONLY_MODE)
-            obj_cnx.write(left + new_text + " " + right)
-            close_connection(obj_cnx)
-        else:
-            # prévoir une solution pour ce cas dans la prochaine vidéo
-            # pour réaliser la modification à la fin du fichier
-            # en cours de test
-            right = read_char_range(filename, position[1]+count_multibyte, file_size)
-            # len_old_text = len(old_text)
-            # + right[len_old_text:]
-            obj_cnx = open_connection(filename, WRITE_ONLY_MODE)
-            obj_cnx.write(left + new_text )
-            close_connection(obj_cnx)
+        if right_start < file_size:
+            right = read_char_range(filename,position[1]+count_multibyte,file_size)
+        if debug:
+            print(f"file_size = {file_size}")
+            print(f"position = {position}")
+            print(left)
+            print("-" * 100)
+            print(right)
+            print("-" * 100)
+            print("contenu qui sera enregistré dans le fichier")
+            print(left + new_text + right)
 
+        # Enregistrement des modifications dans le fichier
+        obj_cnx = open_connection(filename, WRITE_ONLY_MODE)
+        obj_cnx.write(left + new_text + right)
+        close_connection(obj_cnx)
 
-        return {1:"Remplacment a été réalisé"}
+        return {1:"Remplacement a été réalisé"}
     else:
-        return {-1:"Le text à remplacer n'a pas été trouvé. Echec du remplacement."}
+        return {-1:"Le text à remplacer n'a pas été trouvé,échec du remplacement."}

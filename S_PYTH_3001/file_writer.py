@@ -375,14 +375,20 @@ def insert_text_before_first_occurrence(filename, text, sequence):
 
 def validate_replace_text(filename, olt_text, new_text=""):
     """
+    Valide le type des arguments utilisés pour les opérations de remplacement de texte.
 
     Args:
-        filename:
-        olt_text:
-        new_text:
+        filename (str): Chemin complet du fichier.
+        olt_text (str): Séquence de texte à rechercher ou à remplacer.
+        new_text (str, optional): Nouvelle séquence de texte à insérer.
+            Par défaut : "".
 
     Returns:
+        None: La fonction ne retourne rien si toutes les validations réussissent.
 
+    Raises:
+        TypeError: Si `filename`, `olt_text` ou `new_text` ne sont pas
+            des chaînes de caractères.
     """
     if not isinstance(filename,str):
         raise TypeError(
@@ -404,13 +410,19 @@ def validate_replace_text(filename, olt_text, new_text=""):
 
 def contains_text(filename,old_text):
     """
+    Vérifie si une chaîne de caractères existe dans le contenu d'un fichier.
 
     Args:
-        filename:
-        old_text:
+        filename (str): Chemin complet du fichier à analyser.
+        old_text (str): Texte à rechercher dans le fichier.
 
     Returns:
+        bool: - True si le texte est présent dans le fichier.
+              - False si le texte n'a pas été trouvé (ou en cas d'erreur de position).
 
+    Raises:
+        TypeError: Si `filename` ou `old_text` ne sont pas des chaînes de caractères
+            (via `validate_replace_text`).
     """
     validate_replace_text(filename,old_text)
     position = get_cursor_position(filename,old_text)
@@ -422,12 +434,17 @@ def contains_text(filename,old_text):
 
 def get_file_size(filename):
     """
+        Calcule et retourne la taille globale d'un fichier.
 
     Args:
-        filename:
+        filename (str): Chemin complet du fichier à analyser.
 
     Returns:
+        int: - La taille du fichier en octets/caractères.
+             - 0 si l'ouverture du fichier a échoué (connexion Nulle).
 
+    Raises:
+        TypeError: Si `filename` n'est pas une chaîne de caractères.
     """
     if not isinstance(filename, str):
         raise TypeError(
@@ -447,15 +464,20 @@ def get_file_size(filename):
 
 def validat_count(filename,start,end):
     """
+        Valide les types des arguments utilisés pour le comptage dans un fichier.
 
-    Args:
-        filename:
-        start:
-        end:
+        Args:
+            filename (str): Chemin complet du fichier.
+            start (int): Index de début de l'intervalle.
+            end (int): Index de fin de l'intervalle.
 
-    Returns:
+        Returns:
+            None: La fonction ne retourne rien si toutes les validations réussissent.
 
-    """
+        Raises:
+            TypeError: Si `filename` n'est pas une chaîne de caractères,
+                ou si `start` ou `end` ne sont pas des entiers.
+        """
     if not isinstance(filename, str):
         raise TypeError(
             "Le premier paramètre doit-être une chaine de caractères "
@@ -474,15 +496,20 @@ def validat_count(filename,start,end):
 
 def count_line_breaks(filename,start,end):
     """
+    Compte le nombre de sauts de ligne (caractères LF / '\\n') dans une plage du fichier.
 
-    Args:
-        filename:
-        start:
-        end:
+        Args:
+            filename (str): Chemin complet du fichier à analyser.
+            start (int): Index de début de la plage de caractères à analyser.
+            end (int): Index de fin de la plage de caractères à analyser.
 
-    Returns:
+        Returns:
+            int: Nombre de sauts de ligne (code ASCII 10 / LF) trouvés dans l'intervalle.
 
-    """
+        Raises:
+            TypeError: Si `start` ou `end` ne sont pas des entiers (via `validat_count`).
+            ValueError: Si les indices de plage sont invalides (via `validat_count`).
+        """
     validat_count(filename, start, end)
 
     count = 0
@@ -496,14 +523,19 @@ def count_line_breaks(filename,start,end):
 
 def count_multibyte_char(filename, start, end):
     """
+    Compte le nombre de caractères multi-octets (ex: é, à, emojis) dans un intervalle du fichier.
 
     Args:
-        filename:
-        start:
-        end:
+        filename (str): Chemin complet du fichier à analyser.
+        start (int): Index de début de la plage de caractères à analyser.
+        end (int): Index de fin de la plage de caractères à analyser.
 
     Returns:
+        int: Nombre de caractères dont l'encodage UTF-8 dépasse 1 octet.
 
+    Raises:
+        TypeError: Si `start` ou `end` ne sont pas des entiers (via `validat_count`).
+        ValueError: Si les indices de plage sont invalides (via `validat_count`).
     """
     validat_count(filename, start, end)
     count = 0

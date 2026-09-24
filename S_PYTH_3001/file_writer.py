@@ -609,10 +609,11 @@ def replace_text(filename, old_text, new_text,debug=False):
             space = ""
             count_multibyte = count_multibyte_char(filename,0,position[0])
             left = read_char_range(filename,0,position[0])
-            if os.name == "NT":
+            # prise en compte des sauts de lignes pour Windows uniquement
+            if os.name == "nt":
                 count = count_line_breaks(filename,0,position[0])
 
-        right_start = (position[1] + count_multibyte)
+        right_start = position[1] + count_multibyte + count
 
         if right_start < file_size:
             right = read_char_range(filename, position[1] + count_multibyte + count + 1, file_size)

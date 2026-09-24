@@ -1,3 +1,5 @@
+import os
+
 from S_PYTH_3001.file_connection import (
     open_connection,
     close_connection
@@ -594,16 +596,18 @@ def replace_text(filename, old_text, new_text,debug=False):
         count_multibyte = 0
         left = ""
         right = ""
-
+        count = 0
         # Vérifier que la séquence ne se trouve pas à la position 0
         if position[0] > 0:
             count_multibyte = count_multibyte_char(filename,0,position[0])
             left = read_char_range(filename,0,position[0])
+            if os.name == "NT":
+                count = count_line_breaks(filename,0,position[0])
 
-        right_start = (position[1]+count_multibyte)
+        right_start = (position[1] + count_multibyte)
 
         if right_start < file_size:
-            right = read_char_range(filename,position[1]+count_multibyte,file_size)
+            right = read_char_range(filename, position[1] + count_multibyte + count, file_size)
 
         if debug:
             print(f"file_size = {file_size}")

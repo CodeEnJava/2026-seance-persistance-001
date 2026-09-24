@@ -19,10 +19,6 @@ from S_PYTH_3001.file_writer import replace_text
 # filename_text = "C:\\Users\\stebar\\Python\\Gestions\\exemple.txt"
 filename_text ="/Users/steph.barois.dev/Downloads/python/Gestions/exemple.txt"
 
-
-
-
-
 """
 voici le résultat des différents tests réalisés
 

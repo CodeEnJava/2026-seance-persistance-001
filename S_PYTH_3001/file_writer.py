@@ -375,7 +375,7 @@ def insert_text_before_first_occurrence(filename, text, sequence):
 
 def validate_replace_text(filename, olt_text, new_text=""):
     """
-    Valide le type des arguments utilisés pour les opérations de remplacement de texte.
+        Valide le type des arguments utilisés pour les opérations de remplacement de texte.
 
     Args:
         filename (str): Chemin complet du fichier.
@@ -410,7 +410,7 @@ def validate_replace_text(filename, olt_text, new_text=""):
 
 def contains_text(filename,old_text):
     """
-    Vérifie si une chaîne de caractères existe dans le contenu d'un fichier.
+        Vérifie si une chaîne de caractères existe dans le contenu d'un fichier.
 
     Args:
         filename (str): Chemin complet du fichier à analyser.

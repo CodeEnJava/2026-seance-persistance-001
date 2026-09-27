@@ -557,26 +557,29 @@ def count_multibyte_char(filename, start, end):
 
 def replace_text(filename, old_text, new_text,debug=False):
     """
-    Remplace la première occurrence d'un texte par un nouveau texte dans un
-    fichier.
+        Remplace la première occurrence d'un texte par un nouveau texte dans un fichier.
 
-    Args:
-        filename (str): Chemin complet du fichier à modifier.
-        old_text (str): Texte à rechercher et à remplacer.
-        new_text (str): Nouveau texte à insérer à la place de `old_text`.
-        debug (bool, optional): Active l'affichage des informations de débogage
-            (taille du fichier, positions, blocs de texte découpés).
-            Par défaut : False.
+        Prend en compte les caractères multi-octets ainsi que les sauts de ligne
+        spécifiques à Windows (CRLF). Un espace est automatiquement inséré entre
+        le nouveau texte et la suite du fichier.
 
-    Returns:
-        dict:   - {1: "Remplacement a été réalisé"} si le remplacement est effectué.
-                - Un dictionnaire avec un code d'erreur négatif si `old_text`
-                  n'est pas trouvé ou en cas d'erreur de validation.
+        Args:
+            filename (str): Chemin complet du fichier à modifier.
+            old_text (str): Texte à rechercher et à remplacer.
+            new_text (str): Nouveau texte à insérer à la place de `old_text`.
+            debug (bool, optional): Active l'affichage dans la console des métriques
+                de débogage (taille du fichier, positions, blocs de texte découpés).
+                Par défaut : False.
 
-    Raises:
-        TypeError: Si `debug` n'est pas un booléen, ou si l'un des paramètres texte
-            n'est pas une chaîne de caractères (via `validate_replace_text`).
-    """
+        Returns:
+            dict:   - {1: "Remplacement a été réalisé"} si le remplacement réussit.
+                    - {-1: "Le text à remplacer n'a pas été trouvé,échec du remplacement."}
+                      si `old_text` est absent du fichier.
+
+        Raises:
+            TypeError: Si `debug` n'est pas un booléen, ou si l'un des paramètres texte
+                n'est pas une chaîne de caractères (via `validate_replace_text`).
+        """
     validate_replace_text(filename,old_text,new_text)
 
     if not isinstance(debug, bool):
@@ -637,3 +640,104 @@ def replace_text(filename, old_text, new_text,debug=False):
         return {1:"Remplacement a été réalisé"}
     else:
         return {-1:"Le text à remplacer n'a pas été trouvé,échec du remplacement."}
+
+# pour modifier une valeur en utilisant en des pointeurs
+
+# pour la vidéo replace_text_range()
+
+def validate_range(start, end, size_file):
+    """
+    Vérifie la validité d'une plage de positions dans un fichier.
+
+    :param start: Position de début de la plage
+    :param end: position de fin de la plage
+    :param size_file: taille du fichier
+    :return: None
+    :raises TypeError: si un paramètre n'est pas un entier
+    :raises ValueError: si la plage est invalide
+    """
+
+    if not isinstance(start, int):
+        raise TypeError("start doit être un entier.")
+
+    if not isinstance(end, int):
+        raise TypeError("end doit être un entier.")
+
+    if not isinstance(size_file, int):
+        raise TypeError("size_file doit être un entier.")
+
+    if start < 0:
+        raise ValueError("start doit être supérieur ou égal à 0.")
+
+    if end >= size_file:
+        raise ValueError(
+            "end doit être strictement inférieur à la taille du fichier."
+        )
+
+    if end <= start:
+        raise ValueError(
+            "end doit être strictement supérieur à start."
+        )
+
+def pad_text(text, length):
+    """
+    Complète une chaîne de caractères avec des espaces à droite
+    afin d'atteindre une longueur donnée.
+
+    :param text: Chaîne de caractères à compléter
+    :param length: longueur cible
+    :return: chaîne complétée avec des espaces
+    :raises TypeError: si text n'est pas une chaîne ou length n'est pas un entier
+    :raises ValueError: si length est négatif
+    """
+
+    if not isinstance(text, str):
+        raise TypeError("text doit être une chaîne de caractères.")
+
+    if not isinstance(length, int):
+        raise TypeError("length doit être un entier.")
+
+    if length < 0:
+        raise ValueError("length doit être supérieur ou égal à 0.")
+
+    if len(text) < length:
+        return text + "*" * (length - len(text))
+
+    return text
+
+def replace_text_range(filename,start,end, text):
+
+    # start : inclusive
+    # end   : exclusive
+
+    obj_cnx = open_connection(filename, READ_ONLY_MODE)
+
+    # taille du fichier
+    size_file = size(obj_cnx)
+
+    # validation de start et end
+    # il faut que start >=0
+    # il faut que end < size_file
+    # il faut que end > start
+
+    if len(text) > end:
+        return {-1:"Impossible de remplacer la chaine est trop longue."}
+
+    validate_range(start, end, size_file)
+
+    # pas de problème détecté, on continue
+
+    left = read_char_range(filename,0,start)
+    right = read_char_range(filename, end,size_file)
+
+    length = end - start
+
+    new_text = pad_text(text,length)
+    str_txt = left+new_text+right
+
+    obj_cnx = open_connection(filename, WRITE_ONLY_MODE)
+    obj_cnx.write(str_txt)
+
+    close_connection(obj_cnx)
+
+    return {1: "Modification réalisée avec succès."}

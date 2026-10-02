@@ -669,42 +669,69 @@ def pad_text(text, length):
 
 def validate_range(start,end,size_file):
     """
-    réaliser hors vidéo et ajouter dans le github
-    Args:
-        start:
-        end:
-        text:
+        Vérifie la validité d'une plage de caractères dans un fichier.
 
-    Returns:
+        La plage est définie par deux positions :
+        - `start` : position de début, incluse dans la plage ;
+        - `end` : position de fin, exclue de la plage.
 
-    """
+        La fonction vérifie le type des paramètres ainsi que les limites
+        de la plage par rapport à la taille du fichier.
+
+        Args:
+            start (int): Position de début de la plage. Cette position
+                doit être supérieure ou égale à 0.
+            end (int): Position de fin de la plage. Cette position doit
+                être strictement supérieure à `start` et strictement
+                inférieure à `size_file`.
+            size_file (int): Taille du fichier exprimée en caractères.
+
+        Returns:
+            None: La fonction ne retourne aucune valeur lorsque la plage
+                est valide.
+
+        Raises:
+            TypeError: Si `start`, `end` ou `size_file` n'est pas un entier.
+            ValueError: Si `start` est inférieur à 0.
+            ValueError: Si `end` est supérieur ou égal à la taille du fichier.
+            ValueError: Si `end` n'est pas strictement supérieur à `start`.
+
+        Examples:
+            validate_range(10, 20, 100)
+            validate_range(0, 10, 100)
+
+        Notes:
+            La valeur `end` est exclusive. Une plage définie par
+            `start=10` et `end=20` correspond donc aux positions
+            10 à 19.
+        """
 
     if not isinstance(start,int):
         raise TypeError(
-            print("le paramètre 'start' doit-être un type entier.")
+            "le paramètre 'start' doit-être un type entier."
         )
     if not isinstance(end,int) :
         raise TypeError(
-            print("le paramètre 'end' doit-être un type entier.")
+            "le paramètre 'end' doit-être un type entier."
         )
 
     if not isinstance(size_file,int) :
         raise TypeError(
-            print("le paramètre 'end' doit-être un type entier.")
+            "le paramètre 'end' doit-être un type entier."
         )
 
     if start < 0 :
         raise ValueError(
-            print("la valeur de 'start' doit-être supérieur ou égale à 0.")
+            "la valeur de 'start' doit-être supérieur ou égale à 0."
         )
 
     if end >= size_file :
         raise ValueError(
-            print("La valeur de 'end' doit-être strictement inférieure à la taille du fichier.")
+            "La valeur de 'end' doit-être strictement inférieure à la taille du fichier."
         )
     if end <= start :
         raise ValueError(
-            print("Le paramètre 'end' doit être strictement supérieur au paramètre 'start'.")
+            "Le paramètre 'end' doit être strictement supérieur au paramètre 'start'."
         )
 
 
@@ -714,23 +741,60 @@ def validate_range(start,end,size_file):
 
 def replace_text_range(filename,start,end,text):
     """
-    réaliser hors vidéo et ajouter dans le github
-    start : inclusif
-    end : exclusif
-    Args:
-        filename:
-        start:
-        end:
-        text:
+        Remplace une portion de texte dans un fichier.
 
-    Returns:
+        La fonction remplace les caractères compris entre les positions
+        `start` et `end` par une nouvelle chaîne de caractères.
 
-    """
+        La position `start` est incluse dans la plage de remplacement,
+        tandis que la position `end` est exclusive.
+
+        Lorsque le fichier contient des caractères codés sur plusieurs
+        octets en UTF-8, la fonction prend en compte leur longueur afin
+        de déterminer correctement la position de lecture de la partie
+        située après la zone remplacée.
+
+        Args:
+            filename (str): Chemin complet ou relatif du fichier à modifier.
+            start (int): Position de début de la plage à remplacer.
+                Cette position est incluse.
+            end (int): Position de fin de la plage à remplacer.
+                Cette position est exclusive.
+            text (str): Nouveau texte à insérer dans la plage définie.
+
+        Returns:
+            dict: Dictionnaire contenant un code et un message indiquant
+                le résultat de l'opération.
+
+                Codes de retour :
+                    1 : Modification réalisée avec succès.
+                   -1 : Le nouveau texte est trop long pour la plage
+                        de remplacement.
+
+        Raises:
+            TypeError: Si `start`, `end` ou `size_file` ne sont pas
+                des entiers.
+            ValueError: Si la plage définie par `start` et `end` n'est
+                pas valide.
+
+        Examples:
+            >>> replace_text_range("notes.txt", 0, 10, "2026-10-02")
+            {1: 'Modification réalisée avec success.'}
+
+        Notes:
+            La longueur de la zone remplacée est calculée avec :
+
+                length = end - start
+
+            Si le nouveau texte est plus court que la zone à remplacer,
+            il est complété afin de conserver la longueur initiale
+            de l'enregistrement.
+        """
     obj_cnx = open_connection(filename,READ_ONLY_MODE)
 
     size_file = size(obj_cnx)
 
-    if len(text) > end:
+    if len(text) > end - start:
         return {-1:"Impossible de remplacer la chaine est trop longue."}
 
     validate_range(start,end,size_file)

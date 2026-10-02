@@ -641,4 +641,116 @@ def replace_text(filename, old_text, new_text,debug=False):
     else:
         return {-1:"Le text à remplacer n'a pas été trouvé,échec du remplacement."}
 
+def pad_text(text, length):
+    """
+    Complète une chaîne de caractères avec des espaces à droite
+    afin d'atteindre une longueur donnée.
 
+    :param text: Chaîne de caractères à compléter
+    :param length: longueur cible
+    :return: chaîne complétée avec des espaces
+    :raises TypeError: si text n'est pas une chaîne ou length n'est pas un entier
+    :raises ValueError: si length est négatif
+    """
+
+    if not isinstance(text, str):
+        raise TypeError("text doit être une chaîne de caractères.")
+
+    if not isinstance(length, int):
+        raise TypeError("length doit être un entier.")
+
+    if length < 0:
+        raise ValueError("length doit être supérieur ou égal à 0.")
+
+    if len(text) < length:
+        return text + " " * (length - len(text))
+
+    return text
+
+def validate_range(start,end,size_file):
+    """
+    réaliser hors vidéo et ajouter dans le github
+    Args:
+        start:
+        end:
+        text:
+
+    Returns:
+
+    """
+
+    if not isinstance(start,int):
+        raise TypeError(
+            print("le paramètre 'start' doit-être un type entier.")
+        )
+    if not isinstance(end,int) :
+        raise TypeError(
+            print("le paramètre 'end' doit-être un type entier.")
+        )
+
+    if not isinstance(size_file,int) :
+        raise TypeError(
+            print("le paramètre 'end' doit-être un type entier.")
+        )
+
+    if start < 0 :
+        raise ValueError(
+            print("la valeur de 'start' doit-être supérieur ou égale à 0.")
+        )
+
+    if end >= size_file :
+        raise ValueError(
+            print("La valeur de 'end' doit-être strictement inférieure à la taille du fichier.")
+        )
+    if end <= start :
+        raise ValueError(
+            print("Le paramètre 'end' doit être strictement supérieur au paramètre 'start'.")
+        )
+
+
+
+
+
+
+def replace_text_range(filename,start,end,text):
+    """
+    réaliser hors vidéo et ajouter dans le github
+    start : inclusif
+    end : exclusif
+    Args:
+        filename:
+        start:
+        end:
+        text:
+
+    Returns:
+
+    """
+    obj_cnx = open_connection(filename,READ_ONLY_MODE)
+
+    size_file = size(obj_cnx)
+
+    if len(text) > end:
+        return {-1:"Impossible de remplacer la chaine est trop longue."}
+
+    validate_range(start,end,size_file)
+
+    left = ""
+    multi_byte = 0
+
+    if start > 0:
+        left = read_char_range(filename, 0, start)
+        multi_byte = count_multibyte_char(filename, 0, start)
+
+    right = read_char_range(filename,end + multi_byte, size_file)
+
+    length = end - start
+
+    new_text = pad_text(text,length)
+    str_text = left + new_text + right
+
+    obj_cnx = open_connection(filename,WRITE_ONLY_MODE)
+    obj_cnx.write(str_text)
+    close_connection(obj_cnx)
+
+    return {1: "Modification réalisée avec success."}

@@ -19,9 +19,6 @@ from S_PYTH_3001.file_writer import add_txt, get_file_size, pad_text
 
                          Taille totale : 139 octets
                          
-2026-01-03S-PYTH-3000-01EVALUATION10.50Travail correct, quelques notions restent à consolider.                                             
-2026-01-03S-PYTH-3000-01EVALUATION10.50Travail correct, quelques notions restent à consolider.                                             
-
 
 Structure
 Champ       Format                 Taille      DEBUT       FIN
@@ -29,7 +26,7 @@ date        yyyy-mm-dd             10 octets   0           9
 reference   S-PYTH-3000-00         14 octets   10          23
 type        EVALUATION, TP, PROJET 10 octets   24          33
 note        ##.##                  5 octets    34          38
-observation texte                  100 octets  39          128
+observation texte                  100 octets  39          138
 Total                              139 octets
 """
 
@@ -76,11 +73,11 @@ filename = os.path.join(path_txt,file_jan)
 if not check_path(filename,"file"):
     create_file(path_txt,file_jan)
 
-max_note_size = 139
+MAX_NOTE_SIZE = 139
 # injection des datas dans le fichier si celui-ci est vide
 if get_file_size(filename) == 0:
     for note in list_notes:
-        success = add_txt(filename,pad_text(note,max_note_size)+"\n")
+        success = add_txt(filename,pad_text(note,MAX_NOTE_SIZE)+"\n")
         if success == 1:
             print("Ajout de la note réussie")
         elif success == 0:

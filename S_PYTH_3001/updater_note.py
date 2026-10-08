@@ -318,6 +318,57 @@ def update_note_reference(filename, line, ref):
     success = replace_text_range(filename,start,end + 1, str(ref).upper())
 
     if success:
-        return {1: "Modification de la note réussie."}
+        return {1: "Modification de la référence réussie."}
 
-    return {-4: "La modification de la note a échoué."}
+    return {-4: "La modification de la référence a échoué."}
+
+#-------------------------------------------
+# Modifier le type d'une note en utilisant
+# un type prédéfini {EVALUATION, PROJET, TP}
+#-------------------------------------------
+
+set_type ={
+    "EVALUATION",
+    "PROJET",
+    "TP"
+}
+
+def is_validat_type(new_type):
+    """
+
+    Args:
+        new_type:
+
+    Returns:
+
+    """
+    upper_type = str(new_type).upper()
+    if upper_type in set_type:
+        return True
+    else:
+        return False
+
+def update_note_type(filename,line,new_type):
+
+    status_validate = validat_update(filename,line,new_type)
+
+    if isinstance(status_validate, dict):
+        return status_validate
+
+    if not is_validat_type(new_type):
+        return {
+            10 : "Ce type de note n'est pas valide."
+        }
+    # normalisation du type
+    new_type = str(new_type).upper()
+
+    cursor = LINE_SIZE * line
+    start = cursor + TYPE_START
+    end = cursor + TYPE_END
+
+    success = replace_text_range(filename, start, end + 1, new_type)
+
+    if success:
+        return {1: "Modification du type réussie."}
+
+    return {-4: "La modification du type a échoué."}

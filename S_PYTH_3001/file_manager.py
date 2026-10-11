@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from params_connection import WRITE_ONLY_MODE
+from S_PYTH_3001.params_connection import WRITE_ONLY_MODE
 
 
 def check_path(path, path_type="dir"):

@@ -735,7 +735,24 @@ def validate_range(start,end,size_file):
         )
 
 
+# modification
+def count_multibyte_text(text):
+    """
 
+    Args:
+        text:
+
+    Returns:
+
+    """
+    count = 0
+    for char in text:
+        if len(char.encode("utf-8"))>1:
+            count += 1
+
+    return count
+
+# fin modification
 
 
 
@@ -778,7 +795,7 @@ def replace_text_range(filename,start,end,text):
                 pas valide.
 
         Examples:
-            >>> replace_text_range("notes.txt", 0, 10, "2026-10-02")
+             replace_text_range("notes.txt", 0, 10, "2026-10-02")
             {1: 'Modification réalisée avec success.'}
 
         Notes:
@@ -805,13 +822,25 @@ def replace_text_range(filename,start,end,text):
     if start > 0:
         left = read_char_range(filename, 0, start)
         multi_byte = count_multibyte_char(filename, 0, start)
+        print(f"multi_byte = {multi_byte}")
 
+
+    print(f"left = {left}")
     right = read_char_range(filename,end + multi_byte, size_file)
+    print(f"right = {right}")
 
     length = end - start
 
-    new_text = pad_text(text,length)
+    # modification
+    nb_multy_char = count_multibyte_text(text)
+
+    new_text = pad_text(text,length-nb_multy_char)
+
     str_text = left + new_text + right
+
+    print("-"*150)
+    print(str_text)
+    print("-" * 150)
 
     obj_cnx = open_connection(filename,WRITE_ONLY_MODE)
     obj_cnx.write(str_text)

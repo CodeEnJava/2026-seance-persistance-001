@@ -1,8 +1,8 @@
 import _io
 
 
-from file_manager import check_path
-from params_connection import *
+from S_PYTH_3001.file_manager import check_path
+from S_PYTH_3001.params_connection import *
 
 """
 Gestion des connexions aux fichiers.

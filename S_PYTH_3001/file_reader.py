@@ -7,7 +7,7 @@ from S_PYTH_3001.file_connection import (
     BINARY_READ_MODE,
     BUFFERED_READER
 )
-from file_connection import (
+from S_PYTH_3001.file_connection import (
     open_connection,
     close_connection,
     READ_ONLY_MODE

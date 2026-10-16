@@ -23,7 +23,7 @@ from S_PYTH_3001.note_constants import (
     REFERENCE_END, TYPE_START, TYPE_END, GRADE_SIZE, GRADE_START, GRADE_END, OBSERVATION_SIZE, OBSERVATION_START,
     OBSERVATION_END
 )
-
+from S_PYTH_3001.utils import get_os_type
 
 dict_type = {"EVALUATION":"EVALUATION",
              "TP":"TP",
@@ -401,8 +401,13 @@ def update_note_observation(filename, line, new_observation):
     cursor = LINE_SIZE * line
     start = cursor + OBSERVATION_START
 
-    nb_cr = count_carriage_return(filename, 0, start)
-
+    # après avoir fait des tests sur Windows
+    # le code CR n'est pas détecté, mais uniquement LF
+    # solution détecter l'OS si OS nt alors on va prendre en compte LF
+    # Ajout d'un module utils avec une fonction pour récupérer le  l'os
+    # 0 : Mac/Linux
+    # 1 : Windows
+    nb_cr = count_line_breaks(filename, 0, start) * get_os_type()
     start += nb_cr
     end = start + OBSERVATION_SIZE
     success = modify_text_range(filename, start, end, new_observation.lstrip())

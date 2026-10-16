@@ -12,12 +12,13 @@ from S_PYTH_3001.file_reader import (
     read_char_range,
     size, read_byte_range
 )
+from S_PYTH_3001.note_constants import OBSERVATION_SIZE
 
 from S_PYTH_3001.params_connection import (
     APPEND_MODE,
     WRITE_READ_MODE,
     WRITE_ONLY_MODE,
-    READ_ONLY_MODE
+    READ_ONLY_MODE, READ_WRITE_MODE
 )
 
 
@@ -662,8 +663,8 @@ def pad_text(text, length):
     if length < 0:
         raise ValueError("length doit être supérieur ou égal à 0.")
 
-    if len(text) < length:
-        return text + " " * (length - len(text))
+    if len(text.encode("utf-8")) < length:
+        return text + " " * (length - len(text.encode("utf-8")))
 
     return text
 
@@ -822,28 +823,120 @@ def replace_text_range(filename,start,end,text):
     if start > 0:
         left = read_char_range(filename, 0, start)
         multi_byte = count_multibyte_char(filename, 0, start)
-        print(f"multi_byte = {multi_byte}")
 
-
-    print(f"left = {left}")
     right = read_char_range(filename,end + multi_byte, size_file)
-    print(f"right = {right}")
 
     length = end - start
 
     # modification
     nb_multy_char = count_multibyte_text(text)
-
     new_text = pad_text(text,length-nb_multy_char)
-
     str_text = left + new_text + right
-
-    print("-"*150)
-    print(str_text)
-    print("-" * 150)
 
     obj_cnx = open_connection(filename,WRITE_ONLY_MODE)
     obj_cnx.write(str_text)
     close_connection(obj_cnx)
 
     return {1: "Modification réalisée avec success."}
+
+def count_carriage_return(filename,start,end):
+    """
+    Compte le nombre de retour chariot (caractères CR / '\\n') dans une plage du fichier.
+
+        Args:
+            filename (str): Chemin complet du fichier à analyser.
+            start (int): Index de début de la plage de caractères à analyser.
+            end (int): Index de fin de la plage de caractères à analyser.
+
+        Returns:
+            int: Nombre de retour chariot (code ASCII 13 / CR) trouvés dans l'intervalle.
+
+        Raises:
+            TypeError: Si `start` ou `end` ne sont pas des entiers (via `validat_count`).
+            ValueError: Si les indices de plage sont invalides (via `validat_count`).
+        """
+    validat_count(filename, start, end)
+
+    count = 0
+    text = read_char_range(filename, start, end)
+
+    if text is None:
+        return {
+            -1: "Le fichier n'existe pas."
+        }
+    for char in text:
+        if ord(char) == 13:
+            count += 1
+
+    return count
+
+def modify_text_range(filename, start, end, text):
+    """
+    réaliser hors vidéo
+    Args:
+        filename:
+        start:
+        end:
+        text:
+
+    Returns:
+
+    """
+    obj_cnx = open_connection(filename,READ_ONLY_MODE)
+
+    if not obj_cnx:
+        return {
+            -12: "Le fichier n'existe pas."
+        }
+    size_file = size(obj_cnx)
+
+    if len(str(text).encode("utf-8")) > OBSERVATION_SIZE:
+        return {
+            -1: f"Le paramètre 'text' n'est pas valide, la longueur de la "
+                f"chaine est supérieure à {OBSERVATION_SIZE} octets"
+        }
+
+    validate_range(start, end, size_file)
+
+    length = end - start
+
+    new_text = pad_text(text, length)
+
+    obj_cnx = open_connection(filename, READ_WRITE_MODE)
+
+    if obj_cnx:
+        obj_cnx.seek(start)
+        obj_cnx.write(new_text)
+        close_connection(obj_cnx)
+
+        return {
+            1: "Modification réussie"
+        }
+    return {
+        -3: "Un problème lors de la création de l'objet de connexion"
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

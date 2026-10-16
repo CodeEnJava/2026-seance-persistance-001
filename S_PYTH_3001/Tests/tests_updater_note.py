@@ -1,8 +1,8 @@
 import os
 
-from S_PYTH_3001.file_reader import read_char_range
-from S_PYTH_3001.updater_note import update_note_observation, update_note_type, update_note_grade, update_note_date, \
-    update_note_reference
+from S_PYTH_3001.file_writer import count_carriage_return, modify_text_range
+from S_PYTH_3001.note_constants import LINE_SIZE, OBSERVATION_START, OBSERVATION_SIZE
+from S_PYTH_3001.updater_note import update_note_observation
 
 #-----------------------------------------
 # test de la fonction update_note_date
@@ -176,7 +176,7 @@ def affichage_informations(str_info):
 observation = "A"
 affichage_informations(observation)
 
-observation = "ééééééé"
+observation = "é"
 affichage_informations(observation)
 
 observation = ""
@@ -220,116 +220,33 @@ observation_normalisee = observation.strip()
 
 print("Observation après normalisation :")
 affichage_informations(observation_normalisee)
-line = 1
-print(update_note_observation(filename_txt,line,  observation))
+
+# --------------------------------------------
+# test de la fonction modify_text_range
+# --------------------------------------------
+text = "Bon travail, mais il faut persévérer."
 
 
-"""
-2026-01-12S-PYTH-3000-04EVALUATION08.50Des difficultés persistent, les notions
-"""
+# for line  in range(10):
+#     cursor = LINE_SIZE * line
+#     start = cursor + OBSERVATION_START
+#
+#     nb_cr = count_carriage_return(filename_txt,0, start)
+#
+#     if isinstance(nb_cr,dict):
+#         print("Erreur ")
+#     else:
+#         start += nb_cr
+#         end = start + OBSERVATION_SIZE
+#         print(modify_text_range(filename_txt, start, end, text))
 
-#Bon résultat, poursuivre les efforts pour progresser.
-#line = 9
-#print(update_note_observation(filename_txt,line,  observation))
+# --------------------------------------------
+# test de la fonction update_note_observation
+# --------------------------------------------
+line = 9
 
-"""
-message = Dans l'ensemble, un bon travail, les notions principales sont maîtrisées.
- size : 73 caractères(s)
- size : 75 octet(s)
--------------------------
- len(observation)  = 102
- --> start = 39
- --> end = 140
-multi_byte = 0
-start = 39
-left = 2026-01-03S-PYTH-3000-01EVALUATION10.50
-right = 2026-01-05S-PYTH-3000-02PROJET    15.50Très bon travail sur la lecture des fichiers.                                                       
-2026-01-08S-PYTH-3000-03TP        12.00Travail satisfaisant, les bases sont acquises.                                                      
-2026-01-12S-PYTH-3000-04EVALUATION08.50Des difficultés persistent, les notions sont à revoir.                                              
-2026-01-15S-PYTH-3000-05TP        14.00Bon travail, les notions principales sont maîtrisées.                                               
-2026-01-20S-PYTH-3000-06PROJET    17.50Excellent travail, les objectifs sont très bien atteints.                                           
-2026-01-23S-PYTH-3000-07EVALUATION11.50Résultat satisfaisant, certains points restent à consolider.                                        
-2026-01-27S-PYTH-3000-08TP        09.00Les bases sont présentes, mais le travail doit être approfondi.                                     
-2026-01-30S-PYTH-3000-09PROJET    13.50Bon résultat, poursuivre les efforts pour progresser.                                               
-2026-02-03S-PYTH-3000-10EVALUATION16.00Très bon résultat, les compétences sont bien maîtrisées.                                            
+text = " Ne lâcher rien, les efforts vont payer. "
 
-------------------------------------------------------------------------------------------------------------------------------------------------------
-2026-01-03S-PYTH-3000-01EVALUATION10.50Dans l'ensemble, un bon travail, les notions principales sont maîtrisées.                           
-2026-01-05S-PYTH-3000-02PROJET    15.50Très bon travail sur la lecture des fichiers.                                                       
-2026-01-08S-PYTH-3000-03TP        12.00Travail satisfaisant, les bases sont acquises.                                                      
-2026-01-12S-PYTH-3000-04EVALUATION08.50Des difficultés persistent, les notions sont à revoir.                                              
-2026-01-15S-PYTH-3000-05TP        14.00Bon travail, les notions principales sont maîtrisées.                                               
-2026-01-20S-PYTH-3000-06PROJET    17.50Excellent travail, les objectifs sont très bien atteints.                                           
-2026-01-23S-PYTH-3000-07EVALUATION11.50Résultat satisfaisant, certains points restent à consolider.                                        
-2026-01-27S-PYTH-3000-08TP        09.00Les bases sont présentes, mais le travail doit être approfondi.                                     
-2026-01-30S-PYTH-3000-09PROJET    13.50Bon résultat, poursuivre les efforts pour progresser.                                               
-2026-02-03S-PYTH-3000-10EVALUATION16.00Très bon résultat, les compétences sont bien maîtrisées.                                            
+print(update_note_observation(filename_txt, line, text))
 
 
-message = Dans l'ensemble, un bon travail, les notions principales sont maîtrisées.
- size : 73 caractères(s)
- size : 75 octet(s)
--------------------------
- len(observation)  = 102
- --> start = 179
- --> end = 280
-multi_byte = 2
-left = 2026-01-03S-PYTH-3000-01EVALUATION10.50Dans l'ensemble, un bon travail, les notions principales sont maîtrisées.                           
-2026-01-05S-PYTH-3000-02PROJET    15.50
-right = 2026-01-08S-PYTH-3000-03TP        12.00Travail satisfaisant, les bases sont acquises.                                                      
-2026-01-12S-PYTH-3000-04EVALUATION08.50Des difficultés persistent, les notions sont à revoir.                                              
-2026-01-15S-PYTH-3000-05TP        14.00Bon travail, les notions principales sont maîtrisées.                                               
-2026-01-20S-PYTH-3000-06PROJET    17.50Excellent travail, les objectifs sont très bien atteints.                                           
-2026-01-23S-PYTH-3000-07EVALUATION11.50Résultat satisfaisant, certains points restent à consolider.                                        
-2026-01-27S-PYTH-3000-08TP        09.00Les bases sont présentes, mais le travail doit être approfondi.                                     
-2026-01-30S-PYTH-3000-09PROJET    13.50Bon résultat, poursuivre les efforts pour progresser.                                               
-2026-02-03S-PYTH-3000-10EVALUATION16.00Très bon résultat, les compétences sont bien maîtrisées.                                            
-
-------------------------------------------------------------------------------------------------------------------------------------------------------
-2026-01-03S-PYTH-3000-01EVALUATION10.50Dans l'ensemble, un bon travail, les notions principales sont maîtrisées.                           
-2026-01-05S-PYTH-3000-02PROJET    15.50Dans l'ensemble, un bon travail, les notions principales sont maîtrisées.                           
-2026-01-08S-PYTH-3000-03TP        12.00Travail satisfaisant, les bases sont acquises.                                                      
-2026-01-12S-PYTH-3000-04EVALUATION08.50Des difficultés persistent, les notions sont à revoir.                                              
-2026-01-15S-PYTH-3000-05TP        14.00Bon travail, les notions principales sont maîtrisées.                                               
-2026-01-20S-PYTH-3000-06PROJET    17.50Excellent travail, les objectifs sont très bien atteints.                                           
-2026-01-23S-PYTH-3000-07EVALUATION11.50Résultat satisfaisant, certains points restent à consolider.                                        
-2026-01-27S-PYTH-3000-08TP        09.00Les bases sont présentes, mais le travail doit être approfondi.                                     
-2026-01-30S-PYTH-3000-09PROJET    13.50Bon résultat, poursuivre les efforts pour progresser.                                               
-2026-02-03S-PYTH-3000-10EVALUATION16.00Très bon résultat, les compétences sont bien maîtrisées.                                            
-
-
-problème 026 au lieu de 2026
-message = Dans l'ensemble, un bon travail, les notions principales sont maîtrisées.
- size : 73 caractères(s)
- size : 75 octet(s)
--------------------------
- len(observation)  = 102
- --> start = 319
- --> end = 420
-multi_byte = 4
-left = 
-2026-01-03S-PYTH-3000-01EVALUATION10.50Dans l'ensemble, un bon travail, les notions principales sont maîtrisées.                           
-2026-01-05S-PYTH-3000-02PROJET    15.50Dans l'ensemble, un bon travail, les notions principales sont maîtrisées.                           
-2026-01-08S-PYTH-3000-03TP        12.00
-right = 
-026-01-12S-PYTH-3000-04EVALUATION08.50Des difficultés persistent, les notions sont à revoir.                                              
-2026-01-15S-PYTH-3000-05TP        14.00Bon travail, les notions principales sont maîtrisées.                                               
-2026-01-20S-PYTH-3000-06PROJET    17.50Excellent travail, les objectifs sont très bien atteints.                                           
-2026-01-23S-PYTH-3000-07EVALUATION11.50Résultat satisfaisant, certains points restent à consolider.                                        
-2026-01-27S-PYTH-3000-08TP        09.00Les bases sont présentes, mais le travail doit être approfondi.                                     
-2026-01-30S-PYTH-3000-09PROJET    13.50Bon résultat, poursuivre les efforts pour progresser.                                               
-2026-02-03S-PYTH-3000-10EVALUATION16.00Très bon résultat, les compétences sont bien maîtrisées.                                            
-
-------------------------------------------------------------------------------------------------------------------------------------------------------
-2026-01-03S-PYTH-3000-01EVALUATION10.50Dans l'ensemble, un bon travail, les notions principales sont maîtrisées.                           
-2026-01-05S-PYTH-3000-02PROJET    15.50Dans l'ensemble, un bon travail, les notions principales sont maîtrisées.                           
-2026-01-08S-PYTH-3000-03TP        12.00Dans l'ensemble, un bon travail, les notions principales sont maîtrisées.                           
-026-01-12S-PYTH-3000-04EVALUATION08.50Des difficultés persistent, les notions sont à revoir.                                              
-2026-01-15S-PYTH-3000-05TP        14.00Bon travail, les notions principales sont maîtrisées.                                               
-2026-01-20S-PYTH-3000-06PROJET    17.50Excellent travail, les objectifs sont très bien atteints.                                           
-2026-01-23S-PYTH-3000-07EVALUATION11.50Résultat satisfaisant, certains points restent à consolider.                                        
-2026-01-27S-PYTH-3000-08TP        09.00Les bases sont présentes, mais le travail doit être approfondi.                                     
-2026-01-30S-PYTH-3000-09PROJET    13.50Bon résultat, poursuivre les efforts pour progresser.                                               
-2026-02-03S-PYTH-3000-10EVALUATION16.00Très bon résultat, les compétences sont bien maîtrisées.                                            
-                                                                                            
-"""

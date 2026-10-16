@@ -11,7 +11,8 @@ from datetime import datetime
 
 from S_PYTH_3001.file_manager import check_path
 from S_PYTH_3001.file_reader import read_text, read_char_range
-from S_PYTH_3001.file_writer import replace_text_range, pad_text, count_multibyte_text
+from S_PYTH_3001.file_writer import replace_text_range, pad_text, count_multibyte_text, count_multibyte_char, \
+    modify_text_range, count_line_breaks, count_carriage_return
 from S_PYTH_3001.note_constants import (
     DATE_SIZE,
     LINE_SIZE,
@@ -22,6 +23,7 @@ from S_PYTH_3001.note_constants import (
     REFERENCE_END, TYPE_START, TYPE_END, GRADE_SIZE, GRADE_START, GRADE_END, OBSERVATION_SIZE, OBSERVATION_START,
     OBSERVATION_END
 )
+
 
 dict_type = {"EVALUATION":"EVALUATION",
              "TP":"TP",
@@ -159,7 +161,7 @@ def update_note_date(filename, line, new_date ):
 
     success = replace_text_range(filename, start, end + 1, new_date)
 
-    if success:
+    if isinstance(success, dict) and 1 in success:
         return {1:"Modification de la date réussie."}
 
     return {-4:"La modification de la date a échoué."}
@@ -250,7 +252,7 @@ def update_note_grade(filename,line,grade):
 
     success = replace_text_range(filename, start, end + 1, str_grade_normalised)
 
-    if success:
+    if isinstance(success, dict) and 1 in success:
         return {1: "Modification de la note réussie."}
 
     return {-4: "La modification de la note a échoué."}
@@ -318,7 +320,7 @@ def update_note_reference(filename, line, ref):
 
     success = replace_text_range(filename,start,end + 1, str(ref).upper())
 
-    if success:
+    if isinstance(success, dict) and 1 in success:
         return {1: "Modification de la référence réussie."}
 
     return {-4: "La modification de la référence a échoué."}
@@ -369,7 +371,7 @@ def update_note_type(filename,line,new_type):
 
     success = replace_text_range(filename, start, end + 1, new_type)
 
-    if success:
+    if isinstance(success, dict) and 1 in success:
         return {1: "Modification du type réussie."}
 
     return {-4: "La modification du type a échoué."}
@@ -379,95 +381,33 @@ def update_note_type(filename,line,new_type):
 # taille max : 100 octets --> UTF-8
 #----------------------------------
 
-def is_valid_observation_size(observation, size):
-    """
-
-    Args:
-        observation:
-        size:
-
-    Returns:
-
-    """
-    # supprimer les espace avant
-    return len(str(observation).lstrip().encode("utf-8")) <= size
-
-def calculate_utf8_byte_offset(filename, start):
-    """
-    Calculer le décalage en octets lié à l'encodage UTF-8
-    Args:
-        filename:
-        start:
-
-    Returns:
-
-    """
-    text = read_char_range(filename,0, start)
-    text = str(text)
-    return len(text.encode("utf-8")) - len(text)
-
-def find_break_line(filename, start, size):
-    text = read_char_range(filename, start, start + size + 10)
-    text = str(text)
-    pos = text.encode("utf-8").find(10)
-    print(f"position break line :{pos}")
-    if pos != -1:
-        return pos
-    return -1
-
-def update_note_observation(filename, line, observation):
+def update_note_observation(filename, line, new_observation):
     """
 
     Args:
         filename:
         line:
-        observation:
+        new_observation:
 
     Returns:
 
     """
-    status_observation  = validat_update(filename,line,observation)
 
-    if isinstance(status_observation, dict):
-        return status_observation
+    status_validate = validat_update(filename, line, new_observation)
 
-    is_validat_size = is_valid_observation_size(observation, OBSERVATION_SIZE)
-
-    if not is_validat_size:
-        return {
-            11: f"Votre texte est trop long "
-                f" (maximum : {OBSERVATION_SIZE} octets en UTF-8"
-        }
+    if isinstance(status_validate, dict):
+        return status_validate
 
     cursor = LINE_SIZE * line
     start = cursor + OBSERVATION_START
-    # pour trouver la position de fin, il faut tenir compte la taille des caractères sup à 1 octet
-    # mettre en place une fonction pour obtenir la chaine de caractères depuis le début du fichier jusqu'à start
-    # puis totaliser le nombre d'octets en plus dû aux caractères de plus de 1 octet.
 
+    nb_cr = count_carriage_return(filename, 0, start)
 
-    position = find_break_line(filename, start, OBSERVATION_SIZE)
+    start += nb_cr
+    end = start + OBSERVATION_SIZE
+    success = modify_text_range(filename, start, end, new_observation.lstrip())
 
-    utf8_byte_offset = calculate_utf8_byte_offset(filename, start + position)
-    print(f"utf8_byte_offset = {utf8_byte_offset}")
-
-    print(f"position = {position}")
-    end = start + position
-
-    # Problème manque le saut de ligne en fin.
-    # Il faut reconstituer ici le message complet avec les espaces
-    observation  = pad_text(observation,OBSERVATION_SIZE) + "\n"
-
-    print(f" len(observation)  = {len(observation)}")
-    print(f" --> start = {start}")
-    print(f" --> end = {end}")
-
-    success = replace_text_range(filename,
-                                 start,
-                                 end + 1,
-                                 str(observation).lstrip())
-
-    if success:
+    if isinstance(success, dict) and 1 in success:
         return {1: "Modification de l'observation réussie."}
 
     return {-4: "La modification de l'observation a échoué."}

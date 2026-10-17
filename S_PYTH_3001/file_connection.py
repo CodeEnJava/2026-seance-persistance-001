@@ -1,167 +1,87 @@
-import _io
-
-
-from S_PYTH_3001.file_manager import check_path
-from S_PYTH_3001.params_connection import *
 
 """
 Gestion des connexions aux fichiers.
 
-Ce module fournit des fonctions permettant d'ouvrir et de fermer des
-connexions vers des fichiers.
+Ce module centralise l'ouverture et la fermeture des fichiers
+texte et binaires.
 
-Il centralise également les différents modes d'ouverture proposés par
-Python avec la fonction `open()` afin de leur attribuer des noms explicites
-et faciliter leur utilisation dans l'application.
+Référence du catalogue : 100
 
-Les fichiers texte sont ouverts avec l'encodage UTF-8. Les fichiers
-binaires sont ouverts sans encodage afin de permettre la lecture et
-l'écriture de données sous forme d'octets.
+Les erreurs prévues sont retournées sous la forme d'un dictionnaire
+dont la clé est un code numérique et la valeur un message explicatif.
 
-Modes d'ouverture disponibles :
+Codes :
+    101 : autorisation d'accès refusée
+    102 : mode d'ouverture invalide
+    103 : type de nom de fichier invalide
+    104 : nom de fichier vide
+    105 : connexion invalide
 
-    READ_ONLY_MODE            ("r")
-        Lecture seule. Le fichier doit exister.
-
-    WRITE_ONLY_MODE           ("w")
-        Écriture seule. Le fichier est créé s'il n'existe pas.
-        Le contenu existant est supprimé.
-
-    APPEND_MODE               ("a")
-        Écriture en ajout à la fin du fichier.
-        Le fichier est créé s'il n'existe pas.
-
-    APPEND_READ_MODE          ("a+")
-        Lecture et ajout à la fin du fichier.
-        Le fichier est créé s'il n'existe pas.
-
-    BINARY_READ_MODE          ("rb")
-        Lecture en mode binaire.
-
-    BINARY_WRITE_MODE         ("wb")
-        Écriture en mode binaire.
-        Le contenu existant est supprimé.
-
-    READ_WRITE_MODE           ("r+")
-        Lecture et écriture.
-        Le fichier doit exister.
-
-    WRITE_READ_MODE           ("w+")
-        Écriture et lecture.
-        Le fichier est créé s'il n'existe pas et son contenu existant
-        est supprimé.
-
-    BINARY_READ_WRITE_MODE   ("rb+")
-        Lecture et écriture en mode binaire.
-        Le fichier doit exister.
-
-    BINARY_WRITE_READ_MODE   ("wb+")
-        Écriture et lecture en mode binaire.
-        Le fichier est créé s'il n'existe pas et son contenu existant
-        est supprimé.
-
-La constante `VALID_MODES` regroupe l'ensemble des modes d'ouverture
-autorisés par ce module.
-
-Les fonctions principales sont :
-
-    is_binary_mode(mode)
-        Indique si un mode correspond à une ouverture en mode binaire.
-
-    is_obj_connection(obj_cnx)
-        Vérifie si un objet correspond à une connexion valide vers
-        un fichier.
-
-    is_valid_mode(mode)
-        Vérifie si un mode d'ouverture est autorisé.
-
-    open_connection(filename, mode)
-        Vérifie le mode et l'existence du fichier, puis ouvre une
-        connexion en mode texte ou binaire selon le mode demandé.
-
-    close_connection(obj_connection)
-        Vérifie la connexion puis ferme le fichier.
-
-Dépendance :
-
+Dépendances :
     S_PYTH_3001.file_manager.check_path
-        Fonction utilisée pour vérifier l'existence du fichier avant
-        son ouverture.
-
-Exemple :
-
-    connection = open_connection("notes.txt", READ_ONLY_MODE)
-
-    if connection:
-        content = connection.read()
-        close_connection(connection)
+    S_PYTH_3001.params_connection
+    S_PYTH_3001.catalogue_messages.create_message
 """
 
+import _io
 
+from S_PYTH_3001.file_manager import check_path
+from S_PYTH_3001.params_connection import *
+from S_PYTH_3001.catalogue_messages import create_message
 
 
 def is_valid_mode(mode):
     """
-       Vérifie si le mode d'ouverture fourni est autorisé.
+    Vérifie si le mode d'ouverture est autorisé.
 
-       Le mode est comparé à la liste des modes d'ouverture définis
-       dans la constante `VALID_MODES`.
+    Args:
+        mode (str): Mode d'ouverture du fichier.
 
-       Args:
-           mode (str): Mode d'ouverture du fichier.
-
-       Returns:
-           bool: True si le mode est autorisé, sinon False.
+    Returns:
+        bool: True si le mode est autorisé, sinon False.
     """
     return mode in VALID_MODES
 
+
 def is_binary_mode(mode):
     """
-        Vérifie si le mode d'ouverture correspond à un mode binaire.
+    Vérifie si le mode d'ouverture correspond à un mode binaire.
 
-        Cette fonction permet de distinguer les modes d'ouverture binaires
-        des modes d'ouverture texte.
+    Args:
+        mode (str): Mode d'ouverture du fichier.
 
-        Elle est notamment utilisée par `open_connection()` pour déterminer
-        si le paramètre `encoding="utf-8"` doit être utilisé lors de
-        l'ouverture du fichier.
-
-        Args:
-            mode (str): Mode d'ouverture du fichier.
-
-        Returns:
-            bool: True si le mode est binaire, sinon False.
+    Returns:
+        bool: True si le mode est binaire, sinon False.
     """
-    return mode in (BINARY_WRITE_READ_MODE,
-                    BINARY_WRITE_MODE,
-                    BINARY_READ_MODE,
-                    BINARY_READ_WRITE_MODE)
+    return mode in (
+        BINARY_WRITE_READ_MODE,
+        BINARY_WRITE_MODE,
+        BINARY_READ_MODE,
+        BINARY_READ_WRITE_MODE
+    )
+
 
 def is_obj_connection(obj_cnx):
     """
-       Vérifie si un objet correspond à une connexion valide vers un fichier.
+    Vérifie si un objet correspond à une connexion fichier reconnue.
 
-       La fonction vérifie si l'objet fourni est une instance d'un des
-       types de connexion pris en charge par le module.
+    Args:
+        obj_cnx: Objet à vérifier.
 
-       Les types de connexion reconnus sont :
-
-           - `_io.BufferedWriter`
-           - `_io.BufferedReader`
-           - `_io.BufferedRandom`
-           - `_io.TextIOWrapper`
-
-       Args:
-           obj_cnx (_io.IOBase): Objet à vérifier.
-
-       Returns:
-           bool: True si l'objet correspond à une connexion valide,
-               sinon False.
-       """
-    for obj in (BUFFERED_WRITER,BUFFERED_READER,BUFFERED_RANDOM,TEXT_IO_WRAPPER):
-        if isinstance(obj_cnx,obj):
+    Returns:
+        bool: True si l'objet est d'un type reconnu, sinon False.
+    """
+    for obj in (
+        BUFFERED_WRITER,
+        BUFFERED_READER,
+        BUFFERED_RANDOM,
+        TEXT_IO_WRAPPER
+    ):
+        if isinstance(obj_cnx, obj):
             return True
+
     return False
+
 
 def open_connection(filename, mode=READ_ONLY_MODE):
     """
@@ -169,64 +89,64 @@ def open_connection(filename, mode=READ_ONLY_MODE):
 
     Args:
         filename (str): Chemin du fichier à ouvrir.
-        mode (str): Mode d'ouverture du fichier.
-            Par défaut, READ_ONLY_MODE ("r").
+        mode (str): Mode d'ouverture autorisé.
+            Par défaut, READ_ONLY_MODE.
 
     Returns:
-        _io.IOBase | None: Objet représentant la connexion ouverte,
-            ou None si le fichier n'existe pas.
+        _io.IOBase | None | dict:
+            - Objet fichier si l'ouverture réussit.
+            - None si check_path indique que le fichier n'existe pas.
+            - Dictionnaire codifié en cas d'erreur prévue :
+                101 : autorisation refusée.
+                102 : mode invalide.
+                103 : nom de fichier de type invalide.
+                104 : nom de fichier vide.
 
-    Raises:
-        ValueError: Si le mode d'ouverture n'est pas autorisé.
+    Note:
+        Les erreurs système autres que PermissionError ne sont pas
+        transformées par cette fonction et peuvent remonter à l'appelant.
     """
-    # il faut valider le paramètre mode
-
     if not is_valid_mode(mode):
-        raise ValueError(f"Le mode d'ouverture du fichier est pas valide: {mode}")
+        return create_message(102, mode=mode)
 
-    if not isinstance(filename,str):
-        raise ValueError("Le nom du fichier doit-être une chaine de caractères.")
+    if not isinstance(filename, str):
+        return create_message(103)
 
-    if len(filename)<=0:
-        raise ValueError("Le nom du fichier doit-être une chaine de caractères non vide.")
+    if len(filename) == 0:
+        return create_message(104)
+
     try:
-        if check_path(filename,"file"):
-            # deux types : texte ou binaire
-            if not is_binary_mode(mode):
-                return open(filename,mode,encoding="utf-8")
-            else:
-                return open(filename,mode)
+        if check_path(filename, "file"):
+            if is_binary_mode(mode):
+                return open(filename, mode)
+
+            return open(filename, mode, encoding="utf-8")
+
         return None
+
     except PermissionError:
-        # si le fichier est en MODE LECTURE UNIQUE, peut provoquer cette exception
-        # dans le cas ou le mode est _WRITE_
-
-        # Ou vous n'avez pas les droits à modifier le contenu
-        raise ValueError(f"Vous n'avez pas l'autorisation d'accéder "
-                         f"au fichier dans le mode suivant:{mode}")
-
+        return create_message(101, mode=mode)
 
 
 def close_connection(obj_connection):
-   """
-    Ferme une connexion ouverte vers un fichier.
+    """
+    Ferme une connexion fichier ouverte.
 
     Args:
-        obj_connection : Objet représentant la connexion
-                         à fermer.
+        obj_connection: Objet représentant la connexion à fermer.
 
     Returns:
-        int: Retourne 1 lorsque la connexion est fermée.
+        int | dict:
+            - 1 si la connexion est fermée.
+            - Dictionnaire de code 105 si l'objet n'est pas reconnu.
 
     Raises:
-        TypeError: Si l'objet fourni n'est pas une connexion valide.
+        Les erreurs système imprévues liées à la fermeture ne sont pas
+        interceptées par cette fonction.
     """
-   if not is_obj_connection(obj_connection):
-       raise TypeError("Erreur : Le paramètre n'est pas un objet de type valide.")
+    if not is_obj_connection(obj_connection):
+        return create_message(105)
 
-   obj_connection.close()
+    obj_connection.close()
 
-   return 1
-
-
-
+    return 1

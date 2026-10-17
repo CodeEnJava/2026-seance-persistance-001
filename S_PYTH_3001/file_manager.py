@@ -1,365 +1,422 @@
-import os
-from pathlib import Path
 
+"""
+Gestion des chemins, répertoires et fichiers.
+
+Référence du catalogue : 200
+
+Les erreurs de validation sont retournées sous forme de dictionnaires
+via le catalogue centralisé catalogue_messages.py.
+
+Codes d'erreur :
+    201 : chemin invalide dans check_path
+    202 : type de chemin invalide
+    203 : racine invalide dans create_directory
+    204 : nom de répertoire invalide
+    205 : racine invalide dans list_directory
+    206 : racine invalide dans create_subject_directories
+    207 : racine invalide dans create_file
+    208 : nom de fichier invalide
+    209 : répertoire racine invalide
+    210 : chemin invalide dans delete_file
+    211 : nom de stagiaire invalide
+
+Retours historiques :
+    create_directory : -1 si la racine n'existe pas,
+                       0 si le répertoire existe déjà,
+                       1 si le répertoire est créé.
+"""
+
+import os
+
+from S_PYTH_3001.catalogue_messages import create_message
 from S_PYTH_3001.params_connection import WRITE_ONLY_MODE
 
 
+# --------------------------------------------------
+# Vérification des chemins
+# --------------------------------------------------
+
 def check_path(path, path_type="dir"):
     """
-    Vérifie si un chemin donné correspond à un répertoire ou à un fichier.
+    Vérifie l'existence d'un fichier ou d'un répertoire.
 
     Args:
-        path (str): Le chemin du fichier ou du répertoire à vérifier.
-        path_type (str, optional): Le type d'élément attendu ('dir' ou 'file').
-            Défaut à 'dir'.
+        path (str): Chemin à vérifier.
+        path_type (str): 'dir' pour un répertoire ou 'file'
+            pour un fichier. Par défaut : 'dir'.
 
     Returns:
-        bool: True si le chemin existe et correspond au type demandé,
-        False sinon.
-
-    Raises:
-        TypeError: Si 'path' ou 'path_type' ne sont pas des chaînes de caractères.
-        ValueError: Si 'path_type' n'est ni 'file' ni 'dir'.
+        bool | dict:
+            True si le chemin existe et correspond au type demandé.
+            False si le chemin n'existe pas ou ne correspond pas au type.
+            Dictionnaire d'erreur 201 ou 202 si les paramètres
+            sont invalides.
     """
-
     if not isinstance(path, str):
-        raise TypeError(
-            "Le premier paramètre doit être une "
-            "chaine de caractères, contenant un chemin."
-        )
+        return create_message(201)
 
-    # le second paramètre est un paramètre optionnel, par défaut à dir
     if not isinstance(path_type, str):
-        raise TypeError(
-            "Le second paramètre doit être une "
-            "chaine de caractères, devra contenir 'dir' ou 'file'."
-        )
+        return create_message(202)
 
-    if path_type != "file" and path_type != "dir":
-        raise ValueError(
-            "La valeur du paramètre 'path_type' doit être 'file' ou 'dir'."
-        )
+    if path_type not in ("file", "dir"):
+        return create_message(202)
 
     if path_type == "dir":
         return os.path.isdir(path)
+
     return os.path.isfile(path)
+
+
+# --------------------------------------------------
+# Création des répertoires
+# --------------------------------------------------
 
 def create_directory_old(root, directory_name):
     """
+    Ancienne version conservée pour compatibilité.
 
-    :param root:
-    :param directory_name:
-    :return:
+    Args:
+        root (str): Répertoire racine.
+        directory_name (str): Nom du répertoire à créer.
+
+    Returns:
+        bool | dict:
+            True si l'opération est possible ou déjà réalisée.
+            False si la racine n'existe pas.
+            Dictionnaire d'erreur en cas de paramètres invalides.
     """
     if not isinstance(root, str):
-        raise TypeError("Le premier paramètre doit être une "
-                        "chaine de caractères, contenant la racine "
-                        "ou on va placer le nouveau dossier.")
+        return create_message(203)
 
-    # le second paramètre est un paramètre optionnel, par défaut à dir
     if not isinstance(directory_name, str):
-        raise TypeError("Le second paramètre doit être une "
-                        "chaine de caractères, quii contient le nom du dossier à créer.")
+        return create_message(204)
 
-    if not check_path(root):
+    result = check_path(root)
+
+    if isinstance(result, dict):
+        return result
+
+    if not result:
         return False
 
-    # on peut réaliser la création du nouveau dossier, si et seulement si
-    # celui-ci n'existe pas
-    new_path = os.path.join(root,directory_name )
-    if not check_path(new_path):
+    new_path = os.path.join(root, directory_name)
+    result = check_path(new_path)
+
+    if isinstance(result, dict):
+        return result
+
+    if not result:
         os.mkdir(new_path)
+
     return True
 
 
 def create_directory(root, directory_name):
     """
-        Crée un nouveau dossier dans un répertoire existant.
+    Crée un répertoire dans une racine existante.
 
-        Le chemin du nouveau dossier est construit à partir du répertoire racine
-        et du nom du dossier à créer. Si le dossier existe déjà, aucune création
-        n'est effectuée.
+    Args:
+        root (str): Chemin du répertoire racine.
+        directory_name (str): Nom du répertoire à créer.
 
-        :param root: Chemin du répertoire dans lequel créer le nouveau dossier.
-        :type root: str
-        :param directory_name: Nom du dossier à créer.
-        :type directory_name: str
-        :return: True si le dossier existe ou a été créé, False si le répertoire
-                 racine n'existe pas.
-        :rtype: bool
-        :raises TypeError: Si root ou directory_name n'est pas une chaîne de caractères.
+    Returns:
+        int | dict:
+            -1 si la racine n'existe pas ;
+             0 si le répertoire existe déjà ;
+             1 si le répertoire a été créé ;
+            dictionnaire si un paramètre est invalide.
     """
     if not isinstance(root, str):
-        raise TypeError("Le premier paramètre doit être une "
-                        "chaine de caractères, contenant la racine "
-                        "ou on va placer le nouveau dossier.")
+        return create_message(203)
 
-    # le second paramètre est un paramètre optionnel, par défaut à dir
     if not isinstance(directory_name, str):
-        raise TypeError("Le second paramètre doit être une "
-                        "chaine de caractères, qui contient le nom du dossier à créer.")
+        return create_message(204)
 
-    if not check_path(root):
+    result = check_path(root)
+
+    if isinstance(result, dict):
+        return result
+
+    if not result:
         return -1
 
-    # on peut réaliser la création du nouveau dossier, si et seulement si
-    # celui-ci n'existe pas
     new_path = os.path.join(root, directory_name)
-    if not check_path(new_path):
+    result = check_path(new_path)
+
+    if isinstance(result, dict):
+        return result
+
+    if not result:
         os.mkdir(new_path)
         return 1
+
     return 0
+
+
+# --------------------------------------------------
+# Liste des fichiers et des répertoires
+# --------------------------------------------------
 
 def list_directory(root):
     """
-        Liste les fichiers et les dossiers contenus dans un répertoire.
+    Liste les fichiers et les sous-répertoires d'une racine.
 
-        Le contenu du répertoire indiqué par `root` est analysé et classé
-        dans un dictionnaire contenant deux listes :
+    Args:
+        root (str): Chemin du répertoire à analyser.
 
-        - `dir` : noms des sous-répertoires ;
-        - `file` : noms des fichiers.
+    Returns:
+        dict | None:
+            Dictionnaire contenant les listes 'dir' et 'file'.
+            None si le répertoire n'existe pas.
+            Dictionnaire d'erreur 205 si root est invalide.
 
-        :param root: Chemin du répertoire à analyser.
-        :type root: str
-        :return: Dictionnaire contenant les listes des dossiers et des fichiers.
-        :rtype: dict
-        :raises TypeError: Si `root` n'est pas une chaîne de caractères.
-        :raises FileNotFoundError: Si le chemin indiqué n'existe pas.
-        :raises NotADirectoryError: Si `root` ne désigne pas un répertoire.
+    Note:
+        Les erreurs système de os.listdir ne sont pas interceptées.
     """
     if not isinstance(root, str):
-        raise TypeError("Le premier paramètre doit être une "
-                        "chaine de caractères, contenant une racine ")
-    print(root)
+        return create_message(205)
 
-    if not check_path(root):
+    result = check_path(root)
+
+    if isinstance(result, dict):
+        return result
+
+    if not result:
         return None
 
-    ls = {
-           "dir":[],
-           "file":[]
-         }
-    list_folders_files = os.listdir(root)
+    elements = {
+        "dir": [],
+        "file": []
+    }
 
-    for element in list_folders_files:
-        if check_path(os.path.join(root,element)):
-            ls["dir"].append(element)
+    for element in os.listdir(root):
+        element_path = os.path.join(root, element)
+        result = check_path(element_path)
+
+        if isinstance(result, dict):
+            return result
+
+        if result:
+            elements["dir"].append(element)
         else:
-            ls["file"].append(element)
+            elements["file"].append(element)
 
-    return ls
+    return elements
 
-# constantes
+
+# --------------------------------------------------
+# Constantes du Gestionnaire de notes
+# --------------------------------------------------
+
 MAIN_DIRECTORY = "Gestion_Notes"
 TRAINEE_PREFIX = "2026_"
+
 TRAINING_SUBJECTS = [
-                        "S_MATH",
-                        "S_ALGO",
-                        "S_PYTH",
-                        "S_TPTD",
-                        "S_PROJ"
+    "S_MATH",
+    "S_ALGO",
+    "S_PYTH",
+    "S_TPTD",
+    "S_PROJ"
 ]
+
 
 def create_main_directory(root):
     """
-       Crée le répertoire principal de l'application.
+    Crée le répertoire principal de l'application.
 
-       :param root: Chemin dans lequel créer le répertoire.
-       :type root: str
-       :return: Code indiquant le résultat de la création.
-       :rtype: int
+    Args:
+        root (str): Chemin racine de stockage.
+
+    Returns:
+        int | dict: Code de create_directory ou dictionnaire d'erreur.
     """
-    return create_directory(root,MAIN_DIRECTORY)
+    return create_directory(root, MAIN_DIRECTORY)
 
 
-def create_trainee_space(root, name) :
+def create_trainee_space(root, name):
     """
-        Crée le répertoire personnel d'un stagiaire.
+    Crée le répertoire personnel d'un stagiaire.
 
-        :param root: Chemin du répertoire principal.
-        :type root: str
-        :param nom_prenom: Nom et prénom du stagiaire.
-        :type nom_prenom: str
-        :return: Code indiquant le résultat de la création.
-        :rtype: int
+    Args:
+        root (str): Répertoire principal.
+        name (str): Nom et prénom du stagiaire.
+
+    Returns:
+        int | dict: Code de création ou dictionnaire d'erreur.
     """
-    return create_directory(root,TRAINEE_PREFIX+name)
+    if not isinstance(name, str):
+        return create_message(211)
+
+    return create_directory(root, TRAINEE_PREFIX + name)
+
 
 def create_subject_directories(root):
     """
-    Crée les répertoires correspondant aux matières de formation.
+    Crée les répertoires correspondant aux matières.
 
-    :param root: Chemin du répertoire du stagiaire.
-    :type root: str
-    :return: Dictionnaire associant chaque matière au résultat de sa création.
-    :rtype: dict
-    :raises TypeError: Si ``root`` n'est pas une chaîne de caractères.
+    Args:
+        root (str): Répertoire personnel du stagiaire.
+
+    Returns:
+        dict: Dictionnaire associant chaque matière à son résultat,
+              ou dictionnaire d'erreur 206 si root est invalide.
     """
     if not isinstance(root, str):
-        raise TypeError(
-            "Le paramètre doit être une chaine de caractères contenant un chemin."
-        )
+        return create_message(206)
 
     results = {}
 
     for subject in TRAINING_SUBJECTS:
-        results[subject] = create_directory(root, subject)
+        result = create_directory(root, subject)
+
+        if isinstance(result, dict):
+            return result
+
+        results[subject] = result
 
     return results
 
 
 def add_trainee(root, nom_prenom):
     """
-        Crée l'ensemble des répertoires nécessaires à un stagiaire.
+    Crée l'arborescence complète d'un stagiaire.
 
-        :param root: Chemin racine de stockage.
-        :type root: str
-        :param nom_prenom: Nom et prénom du stagiaire.
-        :type nom_prenom: str
-        :return: Résultats des opérations de création.
-        :rtype: dict
+    Args:
+        root (str): Racine de stockage.
+        nom_prenom (str): Nom et prénom du stagiaire.
+
+    Returns:
+        dict: Résultats des créations ou dictionnaire d'erreur.
     """
     result_main = create_main_directory(root)
 
+    if isinstance(result_main, dict):
+        return result_main
+
     if result_main < 0:
-        return {"main":result_main}
+        return {"main": result_main}
 
-    path_gestion_notes = os.path.join(root,MAIN_DIRECTORY)
+    path_gestion_notes = os.path.join(root, MAIN_DIRECTORY)
+    result_trainee = create_trainee_space(
+        path_gestion_notes, nom_prenom
+    )
 
-    result_trainee = create_trainee_space(path_gestion_notes,nom_prenom)
+    if isinstance(result_trainee, dict):
+        return result_trainee
 
     if result_trainee < 0:
-        return {"main":result_main,
-                "trainee":result_trainee}
+        return {
+            "main": result_main,
+            "trainee": result_trainee
+        }
 
-    path_trainee = os.path.join(path_gestion_notes,TRAINEE_PREFIX+nom_prenom)
+    path_trainee = os.path.join(
+        path_gestion_notes, TRAINEE_PREFIX + nom_prenom
+    )
 
     result_subjects = create_subject_directories(path_trainee)
 
+    if isinstance(result_subjects, dict):
+        return result_subjects
+
     return {
         "main": result_main,
-        "trainee":result_trainee,
+        "trainee": result_trainee,
         "subjects": result_subjects
     }
 
 
+# --------------------------------------------------
+# Création d'un fichier
+# --------------------------------------------------
 
-# Ajouter la fonction create_file
-
-def create_file(root, filename, encoding =None):
+def create_file(root, filename, encoding=None):
     """
-        Crée un nouveau fichier dans un répertoire existant.
+    Crée un fichier dans un répertoire existant.
 
-        La fonction vérifie la validité des paramètres et du chemin fourni.
-        Elle vérifie également que le fichier n'existe pas déjà avant de
-        procéder à sa création.
+    Args:
+        root (str): Répertoire dans lequel créer le fichier.
+        filename (str): Nom du fichier.
+        encoding (str | None): Encodage demandé.
+            'utf-8' pour un fichier texte UTF-8.
 
-        Args:
-            root (str):
-                Chemin du répertoire dans lequel le fichier doit être créé.
+    Returns:
+        bool | None | dict:
+            True si le fichier est créé.
+            None si le fichier existe déjà.
+            Dictionnaire d'erreur 207, 208 ou 209 si les
+            paramètres ou la racine sont invalides.
 
-            filename (str):
-                Nom du fichier à créer.
-
-            encoding (str | None, optional):
-                Encodage utilisé pour créer le fichier.
-                Si la valeur est "utf-8", le fichier est créé explicitement
-                avec l'encodage UTF-8. Par défaut, aucun encodage particulier
-                n'est spécifié.
-
-        Returns:
-            bool | None:
-                Retourne True si le fichier a été créé avec succès.
-                Retourne None si le fichier existe déjà.
-
-        Raises:
-            TypeError:
-                Si root ou filename n'est pas une chaîne de caractères.
-
-            ValueError:
-                Si le chemin root n'est pas valide.
-
-        Examples:
-            >>> create_file("data", "notes.txt")
-            True
-
-            >>> create_file("data", "notes.txt", "utf-8")
-            True
-        """
+    Note:
+        Les erreurs système d'ouverture ou d'écriture ne sont pas
+        interceptées.
+    """
     if not isinstance(root, str):
-        raise TypeError(
-            "Le paramètre doit être une chaine de caractères, contenant un chemin."
-        )
+        return create_message(207)
 
     if not isinstance(filename, str):
-        raise TypeError(
-            "Le paramètre doit être une chaine de caractères, contenant le nom du fichier à créer."
-        )
+        return create_message(208)
 
-    if not check_path(root):
-        raise ValueError(
-            f"Le chemin {root} n'est pas valide"
-        )
+    result = check_path(root)
+
+    if isinstance(result, dict):
+        return result
+
+    if not result:
+        return create_message(209, root=root)
 
     new_filename = os.path.join(root, filename)
-    if check_path(new_filename, "file"):
-        print(
-            f"Le fichier {new_filename}, existe déjà, veuillez choisir un autre nom pour le fichier."
-        )
+    result = check_path(new_filename, "file")
+
+    if isinstance(result, dict):
+        return result
+
+    if result:
         return None
 
     if encoding == "utf-8":
-        with open(new_filename, WRITE_ONLY_MODE,encoding="utf-8"):
+        with open(
+            new_filename, WRITE_ONLY_MODE, encoding="utf-8"
+        ):
+            pass
+    else:
+        with open(new_filename, WRITE_ONLY_MODE):
             pass
 
-    else :
-            with open(new_filename, WRITE_ONLY_MODE):
-                pass
-
     return True
+
+
+# --------------------------------------------------
+# Suppression d'un fichier
+# --------------------------------------------------
 
 def delete_file(filename):
     """
-       Supprime un fichier existant.
+    Supprime un fichier existant.
 
-       La fonction vérifie que le paramètre fourni est une chaîne de
-       caractères et que le fichier existe avant de procéder à sa
-       suppression.
+    Args:
+        filename (str): Chemin complet du fichier à supprimer.
 
-       Args:
-           filename (str):
-               Chemin complet du fichier à supprimer.
+    Returns:
+        bool | dict:
+            True si le fichier est supprimé.
+            False si le fichier n'existe pas.
+            Dictionnaire d'erreur 210 si filename est invalide.
 
-       Returns:
-           bool:
-               Retourne True si le fichier a été supprimé avec succès.
-               Retourne False si le fichier n'existe pas.
-
-       Raises:
-           TypeError:
-               Si filename n'est pas une chaîne de caractères.
-
-       Examples:
-           >>> delete_file("data/notes.txt")
-           True
-
-           >>> delete_file("data/fichier_inexistant.txt")
-           False
-       """
+    Note:
+        Les erreurs système de os.remove ne sont pas interceptées.
+    """
     if not isinstance(filename, str):
-        raise TypeError(
-            "Le paramètre doit être une chaine de caractères, contenant le nom du fichier à créer."
-        )
+        return create_message(210)
 
+    result = check_path(filename, "file")
 
-    if not check_path(filename,"file"):
-         print(
-            f"Le fichier {filename} n'existe pas.")
-         return False
+    if isinstance(result, dict):
+        return result
+
+    if not result:
+        return False
+
     os.remove(filename)
+
     return True
-
-
-
-

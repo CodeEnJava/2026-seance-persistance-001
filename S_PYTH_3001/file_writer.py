@@ -865,6 +865,7 @@ def count_carriage_return(filename,start,end):
             -1: "Le fichier n'existe pas."
         }
     for char in text:
+        print(f"ord({char}):{ord(char)} ")
         if ord(char) == 13:
             count += 1
 

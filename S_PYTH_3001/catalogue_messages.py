@@ -21,17 +21,22 @@ CATALOGUE_MESSAGES = {
         "fonction": "open_connection",
         "message": (
             "Vous n'avez pas l'autorisation d'accéder "
-            "au fichier dans le mode suivant : {mode}"
+            "au fichier dans le mode suivant : \'{mode}\'"
         ),
-        "type": "ERREUR"
+        "mode":None,
+        "status": "ERREUR",
+        "data":None
+
     },
 
     102: {
         "fonction": "open_connection",
         "message": (
-            "Le mode d'ouverture du fichier n'est pas valide : {mode}"
+            "Le mode d'ouverture du fichier n'est pas valide : \'{mode}\'{"
         ),
-        "type": "ERREUR"
+        "mode":None,
+        "status": "ERREUR",
+        "data":None
     },
 
     103: {
@@ -39,7 +44,9 @@ CATALOGUE_MESSAGES = {
         "message": (
             "Le nom du fichier doit être une chaîne de caractères."
         ),
-        "type": "ERREUR"
+        "mode": None,
+        "status": "ERREUR",
+        "data":None
     },
 
     104: {
@@ -47,21 +54,64 @@ CATALOGUE_MESSAGES = {
         "message": (
             "Le nom du fichier doit être une chaîne non vide."
         ),
-        "type": "ERREUR"
+        "mode": None,
+        "status": "ERREUR",
+        "data":None
     },
 
     105: {
-        "fonction": "close_connection",
+        "fonction": "open_connection",
         "message": (
-            "Le paramètre fourni n'est pas une connexion valide."
+            "Le paramètre fourni n'est pas un fichier valide."
         ),
-        "type": "ERREUR"
+        "mode": None,
+        "status": "ERREUR",
+        "data":None
     },
+    106: {
+            "fonction": "close_connection",
+            "message": (
+                "Le paramètre fourni n'est pas une connexion valide."
+            ),
+            "mode": None,
+            "status": "ERREUR",
+            "data":False
+        },
 
     110: {
         "fonction": "close_connection",
-        "message": "La connexion au fichier a été fermée.",
-        "type": "SUCCES"
+        "message": "La connexion au fichier est ouverte dans le mode :\'{mode}\'.",
+        "mode": None,
+        "status": "SUCCES",
+        "data": False
+    },
+    111: {
+        "fonction": "close_connection",
+        "message": "La connexion au fichier est ouverte dans le mode:\' {mode} \'pour l'encodage utf-8.",
+        "mode": None,
+        "status": "SUCCES",
+        "data": False
+        },
+    112: {
+        "fonction": "is_obj_connection",
+        "message": "Vérifie si l'objet de connexion est valide.",
+        "mode": None,
+        "status": "SUCCES",
+        "data": True
+        },
+    113: {
+        "fonction": "is_valid_mode",
+        "message": "Vérifie si le mode d'ouverture est autorisé.",
+        "mode": None,
+        "status": "SUCCES",
+        "data": True
+        },
+    114:{
+        "fonction": "is_binary_mode",
+        "message": "Vérifie si on a choisi un mode binaire",
+        "mode":None,
+        "status": "SUCCES",
+        "data": True
     },
 
     # --------------------------------------------------
@@ -71,15 +121,19 @@ CATALOGUE_MESSAGES = {
     201: {
         "fonction": "check_path",
         "message": "Le chemin doit être une chaîne de caractères.",
-        "type": "ERREUR"
+        "mode": None,
+        "status": "ERREUR",
+        "data":None
     },
 
     202: {
         "fonction": "check_path",
         "message": (
-            "Le type de chemin doit être 'file' ou 'dir'."
+            "Le status de chemin doit être 'file' ou 'dir'."
         ),
-        "type": "ERREUR"
+        "mode": None,
+        "status": "ERREUR",
+        "data":None
     },
 
     203: {
@@ -87,7 +141,9 @@ CATALOGUE_MESSAGES = {
         "message": (
             "Le chemin racine doit être une chaîne de caractères."
         ),
-        "type": "ERREUR"
+        "mode": None,
+        "status": "ERREUR",
+        "data":None
     },
 
     204: {
@@ -95,7 +151,9 @@ CATALOGUE_MESSAGES = {
         "message": (
             "Le nom du répertoire doit être une chaîne de caractères."
         ),
-        "type": "ERREUR"
+        "mode": None,
+        "status": "ERREUR",
+        "data":None
     },
 
     205: {
@@ -103,7 +161,9 @@ CATALOGUE_MESSAGES = {
         "message": (
             "Le chemin racine doit être une chaîne de caractères."
         ),
-        "type": "ERREUR"
+        "mode": None,
+        "status": "ERREUR",
+        "data":None
     },
 
     206: {
@@ -111,7 +171,9 @@ CATALOGUE_MESSAGES = {
         "message": (
             "Le chemin doit être une chaîne de caractères."
         ),
-        "type": "ERREUR"
+        "mode": None,
+        "status": "ERREUR",
+        "data":None
     },
 
     207: {
@@ -119,7 +181,9 @@ CATALOGUE_MESSAGES = {
         "message": (
             "Le chemin racine doit être une chaîne de caractères."
         ),
-        "type": "ERREUR"
+        "mode": None,
+        "status": "ERREUR",
+        "data":None
     },
 
     208: {
@@ -127,7 +191,9 @@ CATALOGUE_MESSAGES = {
         "message": (
             "Le nom du fichier doit être une chaîne de caractères."
         ),
-        "type": "ERREUR"
+        "mode": None,
+        "status": "ERREUR",
+        "data":None
     },
 
     209: {
@@ -135,7 +201,9 @@ CATALOGUE_MESSAGES = {
         "message": (
             "Le répertoire racine n'existe pas ou n'est pas valide : {root}"
         ),
-        "type": "ERREUR"
+        "mode": None,
+        "status": "ERREUR",
+        "data":None
     },
 
     210: {
@@ -143,7 +211,9 @@ CATALOGUE_MESSAGES = {
         "message": (
             "Le chemin du fichier doit être une chaîne de caractères."
         ),
-        "type": "ERREUR"
+        "mode": None,
+        "status": "ERREUR",
+        "data":None
     },
 
     211: {
@@ -151,34 +221,63 @@ CATALOGUE_MESSAGES = {
         "message": (
             "Le nom du stagiaire doit être une chaîne de caractères."
         ),
-        "type": "ERREUR"
+        "mode": None,
+        "status": "ERREUR",
+        "data":None
     }
 
 }
 
 
-def create_message(code, **params):
+def create_message(code,**params):
     """
-    Construit un dictionnaire contenant un message du catalogue.
+        Construit un résultat standardisé à partir du catalogue des messages.
 
-    Args:
-        code (int): Code du message à récupérer.
-        **params: Paramètres nécessaires au formatage du message.
+        Recherche le message correspondant au code fourni, récupère les
+        informations associées et construit un dictionnaire contenant
+        le code, la fonction concernée, le statut, le mode, le message
+        formaté et les données de retour.
 
-    Returns:
-        dict: Dictionnaire contenant le code et le message,
-              ou None si le code est inconnu.
+        Args:
+            code (int): Code numérique identifiant le message dans le
+                catalogue CATALOGUE_MESSAGES.
+            **params: Paramètres nommés complémentaires. Les paramètres
+                pris en charge sont :
+                    data : donnée ou valeur de retour associée au résultat ;
+                    mode : mode de traitement utilisé pour formater
+                        le message.
+
+        Returns:
+            dict | None: Dictionnaire contenant les informations du résultat
+                si le code existe dans le catalogue, None sinon.
+
+        Note:
+            Les paramètres non utilisés par la fonction sont ignorés.
+            Le message est actuellement formaté avec le paramètre mode.
     """
     information = CATALOGUE_MESSAGES.get(code)
 
     if information is None:
         return None
 
-    message = information["message"].format(**params)
+    _data = None
+    _mode = ""
+
+    key = "data"
+    if key in params:
+        _data = params.get("data")
+
+    key ="mode"
+    if key in params:
+        _mode = params.get("mode")
+
+    message = information["message"].format(mode=_mode)
 
     return {
-        code: (
-            f"fn : {information['fonction']}\n"
-            f"{message}"
-        )
+            "code":code,
+            "fonction": information["fonction"],
+            "status": information["status"],
+            "mode":_mode,
+            "message": message,
+            "data": _data
     }

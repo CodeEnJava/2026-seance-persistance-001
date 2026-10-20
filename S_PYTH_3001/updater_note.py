@@ -409,6 +409,8 @@ def update_note_observation(filename, line, new_observation):
     # 1 : Windows
     nb_cr = count_line_breaks(filename, 0, start) * get_os_type()
     start += nb_cr
+
+    print(f"nb_cr {nb_cr}")
     end = start + OBSERVATION_SIZE
     success = modify_text_range(filename, start, end, new_observation.lstrip())
 

@@ -243,7 +243,7 @@ text = "Bon travail, mais il faut persévérer."
 # --------------------------------------------
 # test de la fonction update_note_observation
 # --------------------------------------------
-line = 2
+line = 8
 
 text = " Ne lâcher rien, les efforts vont payer. "
 

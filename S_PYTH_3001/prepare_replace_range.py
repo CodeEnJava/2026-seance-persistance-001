@@ -60,7 +60,7 @@ list_notes = [
 
 # préparer le dossier en fonction de l'OS
 if os.name == "nt":
-    path_txt = "C:\\Users\\stebar\\Python\\Gestion_Notes\\2026_toto_otto\\S_PYTH"
+    path_txt = "C:\\Users\\STEPHANE.BAROIS\\Python\\Gestion_Notes\\2026_toto_otto\\S_PYTH"
 else:
     path_txt = "/Users/steph.barois.dev/Downloads/python/Gestion_Notes/2026_toto_otto/S_PYTH"
 

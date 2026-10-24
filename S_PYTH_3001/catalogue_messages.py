@@ -224,7 +224,62 @@ CATALOGUE_MESSAGES = {
         "mode": None,
         "status": "ERREUR",
         "data":None
-    }
+    },
+    220:{
+        "fonction": "check_path",
+        "message": "Vérifie si le chemin est un dossier",
+        "mode": None,
+        "status": "SUCCES",
+        "data":None
+    },
+    221:{
+        "fonction": "check_path",
+        "message": "Vérifie si le chemin est un fichier",
+        "mode": None,
+        "status": "SUCCES",
+        "data":None
+    },
+    221:{
+        "fonction": "create_directory",
+        "message": "Le répertoire a été crée",
+        "mode": None,
+        "status": "SUCCES",
+        "data":1
+    },
+    222:{
+        "fonction": "create_directory",
+        "message": "Le répertoire existe déjà",
+        "mode": None,
+        "status": "SUCCES",
+        "data":0
+    },
+    223:{
+        "fonction": "create_directory",
+        "message": "Le racine n'existe pas",
+        "mode": None,
+        "status": "ECHEC",
+        "data":1
+    },
+    224:{
+        "fonction": "list_directory",
+        "message": "La liste des fichiers et dossier de la racine :{mode}",
+        "mode": None,
+        "status": "SUCCES",
+        "data":None
+    },
+    225:{
+            "fonction": "add_trainee",
+            "message": "l'arborescence pour le candidat {mode} a été construit",
+            "mode": None,
+            "status": "SUCCES",
+            "data":True
+        }
+
+
+
+
+
+
 
 }
 

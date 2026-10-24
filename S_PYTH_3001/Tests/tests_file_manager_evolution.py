@@ -2,12 +2,16 @@ import os.path
 
 from S_PYTH_3001.file_manager import (
     create_file,
-    delete_file
+    delete_file, check_path
 )
 
 # tests pour ajouter un nouveau fichier
 
-path = "C:\\Users\\stebar\\Python\\Gestions"
+path =  r"C:\Users\STEPHANE.BAROIS\Python"
+filename = path + r"\exemple.txt"
+
+print("check path :", check_path(path).get("data"))
+print("check path :", check_path(filename,"file").get("data"))
 
 exemple_1 = "exemple_3.txt"
 exemple_binaire = "binaire_3.bin"
@@ -19,11 +23,11 @@ else:
     print(f"Le fichier {exemple_1} n'a pas été créé.")
 
 # neutraliser le bloc suivant pour tester la fonction delete_file
-#success = create_file(path, exemple_binaire)
-#if success:
-#    print(f"Le fichier {exemple_binaire} a été créé.")
-#else:
-#    print(f"Le fichier {exemple_binaire} n'a pas été créé.")
+success = create_file(path, exemple_binaire)
+if success:
+   print(f"Le fichier {exemple_binaire} a été créé.")
+else:
+   print(f"Le fichier {exemple_binaire} n'a pas été créé.")
 
 # test de la fonction delete_file
 filename_3 = os.path.join(path,exemple_binaire)

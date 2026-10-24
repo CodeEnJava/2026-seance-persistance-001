@@ -1,18 +1,18 @@
+import os
+
 from S_PYTH_3001.file_manager import add_trainee
-root = "/Users/steph.barois.dev/Downloads/python/Gestion_Notes"
+
+
+#-----------------------------------------
+# préparer le dossier en fonction de l'OS
+#-----------------------------------------
+if os.name == "nt":
+    root = r"C:\Users\STEPHANE.BAROIS\Python"
+else:
+    root = r"/Users/steph.barois.dev/Downloads/python/"
+
 result = add_trainee(
     root,
-    "MARTIN_Sophie"
+    "TOTO_Otto"
 )
 
-if isinstance(result, dict) and len(result) == 1:
-    code = next(iter(result))
-
-    if isinstance(code, int):
-        # Un dictionnaire d'erreur du catalogue
-        print(result[code])
-    else:
-        # Résultats détaillés de création
-        print(result)
-else:
-    print(result)

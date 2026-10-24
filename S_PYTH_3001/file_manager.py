@@ -29,6 +29,7 @@ Retours historiques :
 import os
 
 from S_PYTH_3001.catalogue_messages import create_message
+from S_PYTH_3001.constantes_gestionnaire_note import MAIN_DIRECTORY, TRAINEE_PREFIX, TRAINING_SUBJECTS
 from S_PYTH_3001.params_connection import WRITE_ONLY_MODE
 
 
@@ -62,9 +63,11 @@ def check_path(path, path_type="dir"):
         return create_message(202)
 
     if path_type == "dir":
-        return os.path.isdir(path)
+        flag = os.path.isdir(path)
+        return create_message(220,data = flag)
 
-    return os.path.isfile(path)
+    flag = os.path.isfile(path)
+    return create_message(221,data = flag)
 
 
 # --------------------------------------------------
@@ -93,10 +96,12 @@ def create_directory_old(root, directory_name):
 
     result = check_path(root)
 
-    if isinstance(result, dict):
+    print("ligne 99 : ",result)
+
+    if isinstance(result, dict) and result.get("data") is None:
         return result
 
-    if not result:
+    if not result.get("data"):
         return False
 
     new_path = os.path.join(root, directory_name)
@@ -134,23 +139,23 @@ def create_directory(root, directory_name):
 
     result = check_path(root)
 
-    if isinstance(result, dict):
+    if result.get("data") is None:
         return result
 
-    if not result:
-        return -1
+    if not result.get("data"):
+        return create_message(224, data = -1)
 
     new_path = os.path.join(root, directory_name)
     result = check_path(new_path)
 
-    if isinstance(result, dict):
+    if result.get("data") is None:
         return result
 
-    if not result:
+    if not result.get("data"):
         os.mkdir(new_path)
-        return 1
+        return create_message(221, data = 1)
 
-    return 0
+    return create_message(222, data = 0)
 
 
 # --------------------------------------------------
@@ -178,11 +183,11 @@ def list_directory(root):
 
     result = check_path(root)
 
-    if isinstance(result, dict):
+    if result.get("data") is None:
         return result
 
-    if not result:
-        return None
+    if not result.get("data"):
+        return result
 
     elements = {
         "dir": [],
@@ -201,23 +206,8 @@ def list_directory(root):
         else:
             elements["file"].append(element)
 
-    return elements
+    return create_message(224, mode=root, data=elements)
 
-
-# --------------------------------------------------
-# Constantes du Gestionnaire de notes
-# --------------------------------------------------
-
-MAIN_DIRECTORY = "Gestion_Notes"
-TRAINEE_PREFIX = "2026_"
-
-TRAINING_SUBJECTS = [
-    "S_MATH",
-    "S_ALGO",
-    "S_PYTH",
-    "S_TPTD",
-    "S_PROJ"
-]
 
 
 def create_main_directory(root):
@@ -268,12 +258,9 @@ def create_subject_directories(root):
 
     for subject in TRAINING_SUBJECTS:
         result = create_directory(root, subject)
-
-        if isinstance(result, dict):
-            return result
-
         results[subject] = result
 
+    print(f"results: {results}")
     return results
 
 
@@ -290,40 +277,36 @@ def add_trainee(root, nom_prenom):
     """
     result_main = create_main_directory(root)
 
-    if isinstance(result_main, dict):
+    if result_main.get("data") < 0:
         return result_main
-
-    if result_main < 0:
-        return {"main": result_main}
 
     path_gestion_notes = os.path.join(root, MAIN_DIRECTORY)
     result_trainee = create_trainee_space(
         path_gestion_notes, nom_prenom
     )
 
-    if isinstance(result_trainee, dict):
+    if result_trainee.get("data") < 0:
         return result_trainee
-
-    if result_trainee < 0:
-        return {
-            "main": result_main,
-            "trainee": result_trainee
-        }
 
     path_trainee = os.path.join(
         path_gestion_notes, TRAINEE_PREFIX + nom_prenom
     )
 
     result_subjects = create_subject_directories(path_trainee)
+    exists = 0
+    for subject in result_subjects:
+        # si tous les sujets sont à 1 construction réussie
+        # si tous les sujets sont à 0 arborescence existe
+        if result_subjects.get(subject).get("data")<0:
+            # si un sujet est à -1 echec
+            return create_message(227, data=0, mode=subject)
+        elif result_subjects.get(subject).get("data") == 1:
+           exists += 1
 
-    if isinstance(result_subjects, dict):
-        return result_subjects
+    if exists == 0:
+            return create_message(226,data=1,mode=nom_prenom)
 
-    return {
-        "main": result_main,
-        "trainee": result_trainee,
-        "subjects": result_subjects
-    }
+    return create_message(22,data=1,mode=nom_prenom)
 
 
 # --------------------------------------------------

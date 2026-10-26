@@ -57,12 +57,13 @@ def append_txt(filename, txt):
             "le texte à ajouter à la fin du fichier."
         )
 
-    if not check_path(filename,"file"):
+    if not check_path(filename,"file").get("data"):
         print(f" le fichier {filename} n'existe pas.")
         return -1
 
     obj_cnx = open_connection(filename,APPEND_MODE)
-
+    # evolution avec le catalogue
+    obj_cnx = obj_cnx.get("data")
     if obj_cnx:
         obj_cnx.write(txt)
         close_connection(obj_cnx)
@@ -119,7 +120,8 @@ def prepend(filename,txt):
 
     # le contenu du fichier a été supprimé, après avoir créé l'objet obj_cnx
     obj_cnx = open_connection(filename,WRITE_READ_MODE)
-
+    # evolution
+    obj_cnx = obj_cnx.get('data')
     if obj_cnx:
         # il faut injecter le texte dans le fichier
         # pour rappel le fichier est vide, donc le texte sera ajouté au début
@@ -206,6 +208,7 @@ def insert_text(filename, text, cursor):
 
     obj_cnx = open_connection(filename, READ_ONLY_MODE)
 
+    obj_cnx = obj_cnx['data']
     # taille du fichier
     size_file = size(obj_cnx)
 
@@ -375,6 +378,8 @@ def insert_text_before_first_occurrence(filename, text, sequence):
 
     obj_cnx = open_connection(filename, WRITE_ONLY_MODE)
 
+    obj_cnx = obj_cnx['data']
+
     obj_cnx.write(left + right)
 
     close_connection(obj_cnx)
@@ -463,6 +468,7 @@ def get_file_size(filename):
 
     obj_cnx = open_connection(filename)
 
+    obj_cnx = obj_cnx['data']
     if obj_cnx is None:
         return 0
 
@@ -634,6 +640,7 @@ def replace_text(filename, old_text, new_text,debug=False):
 
         # Enregistrement des modifications dans le fichier.
         obj_cnx = open_connection(filename, WRITE_ONLY_MODE)
+        obj_cnx = obj_cnx['data']
         # Après exécution le fichier est vide.
         obj_cnx.write(left + new_text + space + right)
         close_connection(obj_cnx)
@@ -810,6 +817,7 @@ def replace_text_range(filename,start,end,text):
         """
     obj_cnx = open_connection(filename,READ_ONLY_MODE)
 
+    obj_cnx = obj_cnx['data']
     size_file = size(obj_cnx)
 
     if len(text) > end - start:
@@ -834,6 +842,8 @@ def replace_text_range(filename,start,end,text):
     str_text = left + new_text + right
 
     obj_cnx = open_connection(filename,WRITE_ONLY_MODE)
+
+    obj_cnx = obj_cnx['data']
     obj_cnx.write(str_text)
     close_connection(obj_cnx)
 
@@ -884,6 +894,7 @@ def modify_text_range(filename, start, end, text):
 
     """
     obj_cnx = open_connection(filename,READ_ONLY_MODE)
+    obj_cnx = obj_cnx['data']
 
     if not obj_cnx:
         return {
@@ -905,6 +916,8 @@ def modify_text_range(filename, start, end, text):
 
     obj_cnx = open_connection(filename, READ_WRITE_MODE)
 
+    obj_cnx = obj_cnx['data']
+
     if obj_cnx:
         obj_cnx.seek(start)
         obj_cnx.write(new_text)
@@ -916,17 +929,6 @@ def modify_text_range(filename, start, end, text):
     return {
         -3: "Un problème lors de la création de l'objet de connexion"
     }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

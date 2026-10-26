@@ -2,6 +2,7 @@ from io import (
     SEEK_END
 )
 
+from S_PYTH_3001.catalogue_messages import create_message
 from S_PYTH_3001.file_connection import (
     TEXT_IO_WRAPPER,
     BINARY_READ_MODE,
@@ -58,85 +59,87 @@ DATA = "data"
 STATUS = "status"
 ERROR = "Error"
 
+
 def read_text_aux(obj_connection):
     """
-    Lit l'intégralité du contenu d'une connexion vers un fichier texte.
+    Lit le contenu d'une connexion vers un fichier texte.
 
-    Cette fonction travaille sur une connexion déjà ouverte. Elle vérifie
-    que l'objet fourni est bien une connexion texte, lit son contenu.
+    Args:
+        obj_connection: Connexion texte ouverte.
 
-    La fermeture des connexions est prise en charge après la lecture afin
-    de libérer les ressources utilisées.
-
-    Le résultat est retourné sous la forme d'un dictionnaire contenant
-    les données lues, l'état de la connexion et une éventuelle erreur.
-
-    :param obj_connection:  Objet représentant une connexion ouverte vers
-                            un fichier texte.
-    :type obj_connection: TEXT_IO_WRAPPER
-    :return:    Dictionnaire contenant les données lues (`DATA`), l'état
-                de la connexion (`STATUS`) et le message d'erreur éventuel
-                (`ERROR`).
-    :rtype:     dict
-    :raises TypeError:  Si `obj_connection` n'est pas une connexion
-                        de type `TEXT_IO_WRAPPER`.
+    Returns:
+        dict: Catalogue de résultat contenant les données,
+              le statut et le message associé.
     """
+
+    # Vérifier le type de connexion.
     if not isinstance(obj_connection, TEXT_IO_WRAPPER):
-        raise TypeError(f"Le paramètre doit être un objet de type {TEXT_IO_WRAPPER}.")
+        return create_message(
+            301,
+            None,
+            fonction="read_text_aux",
+            type_attendu=str(TEXT_IO_WRAPPER),
+            type_recu=type(obj_connection).__name__
+        )
+
     try:
+        # Lire le contenu du fichier.
         data_txt = obj_connection.read()
-        # On libère la ressource
+
+        # Fermer la connexion après lecture.
         close_connection(obj_connection)
-        return {
-            DATA: data_txt,
-            STATUS: CLOSED,
-            ERROR: "Pas d'erreur"
-        }
+
+        # Retourner le résultat du catalogue.
+        return create_message(
+            300,
+            data = data_txt,
+            fonction="read_text_aux"
+        )
+
     except ValueError as error:
+
+        # Déterminer si la connexion est fermée.
         if obj_connection.closed:
-            return {
-                DATA: None,
-                STATUS: CLOSED,
-                ERROR: "Impossible de lire, la connexion est fermée."
-            }
-        return {
-            DATA:None,
-            STATUS:CLOSED,
-            ERROR:error
-        }
+            message = "Impossible de lire : la connexion est fermée."
+        else:
+            message = str(error)
+
+        return create_message(
+            302,
+            None,
+            fonction="read_text_aux",
+            detail=message
+        )
 
 def read_text(filename):
     """
-    Lit l'intégralité du contenu d'un fichier texte.
+    Lit le contenu d'un fichier texte.
 
-    Cette fonction ouvre le fichier en mode lecture, délègue la lecture
-    du contenu à `read_text_aux()` puis retourne directement les données
-    lues.
+    Args:
+        filename (str): Chemin du fichier.
 
-    Si le fichier ne peut pas être ouvert ou si une erreur survient
-    pendant la lecture, la fonction affiche le message correspondant
-    et retourne `None`.
-
-    :param filename: Chemin du fichier texte à lire.
-    :type filename: str
-    :return: Contenu du fichier sous forme de chaîne de caractères,
-        ou `None` en cas d'erreur.
-    :rtype: str | None
+    Returns:
+        str | None: Contenu lu ou None en cas d'erreur.
     """
-    obj_cnx = open_connection(filename, READ_ONLY_MODE)
 
-    if obj_cnx is None:
-        print(f"Le fichier :{filename} \nn'a pas été trouvé")
-        return None
+    result = open_connection(filename, READ_ONLY_MODE)
+    # Vérifier le résultat de l'ouverture.
+    if result is None or not result.get("data"):
+        return create_message(
+            code = 303,
+            data = False,
+            fonction = "read_text"
+        )
 
-    data = read_text_aux(obj_cnx)
+    obj_cnx = result.get("data")
+    # Récupérer le catalogue de lecture.
+    result = read_text_aux(obj_cnx)
 
-    if data[DATA] is not None:
-        return data[DATA]
+    # Retourner les données si la lecture a réussi.
+    if result["data"] is not None:
+        return result["data"]
 
-    print(data[ERROR])
     return None
-
 
 
 

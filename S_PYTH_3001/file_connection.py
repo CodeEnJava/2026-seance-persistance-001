@@ -233,12 +233,13 @@ def open_connection(filename, _mode=READ_ONLY_MODE):
         return create_message(104)
 
     try:
-        if check_path(filename, "file"):
+        if check_path(filename, "file").get("data"):
             if is_binary_mode(_mode).get("data"):
+                # fichier en mode lecture binaire
                 return create_message(110,mode=_mode,data=open(filename, mode=_mode))
-
+            # fichier texte encodage utf-8
             return create_message(111,mode=_mode,data=open(filename, mode=_mode,encoding="utf-8"))
-
+        # le fichier n'existe pas
         return create_message(106)
 
     except PermissionError:

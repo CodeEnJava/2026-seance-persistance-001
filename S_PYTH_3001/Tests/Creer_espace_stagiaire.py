@@ -13,6 +13,7 @@ else:
 
 result = add_trainee(
     root,
-    "TOTO_Otto"
+    "BU_AMEDE_2"
 )
+print(result)
 

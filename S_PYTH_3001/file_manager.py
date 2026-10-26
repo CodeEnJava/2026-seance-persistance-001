@@ -1,135 +1,61 @@
-
 """
 Gestion des chemins, répertoires et fichiers.
 
-Référence du catalogue : 200
-
-Les erreurs de validation sont retournées sous forme de dictionnaires
-via le catalogue centralisé catalogue_messages.py.
-
-Codes d'erreur :
-    201 : chemin invalide dans check_path
-    202 : type de chemin invalide
-    203 : racine invalide dans create_directory
-    204 : nom de répertoire invalide
-    205 : racine invalide dans list_directory
-    206 : racine invalide dans create_subject_directories
-    207 : racine invalide dans create_file
-    208 : nom de fichier invalide
-    209 : répertoire racine invalide
-    210 : chemin invalide dans delete_file
-    211 : nom de stagiaire invalide
-
-Retours historiques :
-    create_directory : -1 si la racine n'existe pas,
-                       0 si le répertoire existe déjà,
-                       1 si le répertoire est créé.
+Référence du catalogue : 200.
+Les erreurs de validation sont retournées sous forme de dictionnaires.
+Les fonctions de ce module ne masquent pas les erreurs système inattendues.
 """
 
 import os
 
 from S_PYTH_3001.catalogue_messages import create_message
-from S_PYTH_3001.constantes_gestionnaire_note import MAIN_DIRECTORY, TRAINEE_PREFIX, TRAINING_SUBJECTS
+from S_PYTH_3001.constantes_gestionnaire_note import (
+    MAIN_DIRECTORY,
+    TRAINEE_PREFIX,
+    TRAINING_SUBJECTS,
+)
 from S_PYTH_3001.params_connection import WRITE_ONLY_MODE
 
 
-# --------------------------------------------------
-# Vérification des chemins
-# --------------------------------------------------
+def _is_error(result):
+    """Indique si un résultat standardisé correspond à une erreur."""
+    return isinstance(result, dict) and result.get("status") == "ERREUR"
+
 
 def check_path(path, path_type="dir"):
     """
-    Vérifie l'existence d'un fichier ou d'un répertoire.
+    Vérifie l'existence et le type d'un chemin.
 
     Args:
         path (str): Chemin à vérifier.
-        path_type (str): 'dir' pour un répertoire ou 'file'
-            pour un fichier. Par défaut : 'dir'.
+        path_type (str): 'dir' pour un répertoire ou 'file' pour un fichier.
 
     Returns:
-        bool | dict:
-            True si le chemin existe et correspond au type demandé.
-            False si le chemin n'existe pas ou ne correspond pas au type.
-            Dictionnaire d'erreur 201 ou 202 si les paramètres
-            sont invalides.
+        dict: Résultat standardisé ; data vaut True ou False si les
+        paramètres sont valides, ou None en cas d'erreur de validation.
     """
     if not isinstance(path, str):
         return create_message(201)
 
-    if not isinstance(path_type, str):
-        return create_message(202)
-
-    if path_type not in ("file", "dir"):
+    if not isinstance(path_type, str) or path_type not in ("file", "dir"):
         return create_message(202)
 
     if path_type == "dir":
-        flag = os.path.isdir(path)
-        return create_message(220,data = flag)
+        exists = os.path.isdir(path)
+        return create_message(220, data=exists, path=path)
 
-    flag = os.path.isfile(path)
-    return create_message(221,data = flag)
-
-
-# --------------------------------------------------
-# Création des répertoires
-# --------------------------------------------------
-
-def create_directory_old(root, directory_name):
-    """
-    Ancienne version conservée pour compatibilité.
-
-    Args:
-        root (str): Répertoire racine.
-        directory_name (str): Nom du répertoire à créer.
-
-    Returns:
-        bool | dict:
-            True si l'opération est possible ou déjà réalisée.
-            False si la racine n'existe pas.
-            Dictionnaire d'erreur en cas de paramètres invalides.
-    """
-    if not isinstance(root, str):
-        return create_message(203)
-
-    if not isinstance(directory_name, str):
-        return create_message(204)
-
-    result = check_path(root)
-
-    print("ligne 99 : ",result)
-
-    if isinstance(result, dict) and result.get("data") is None:
-        return result
-
-    if not result.get("data"):
-        return False
-
-    new_path = os.path.join(root, directory_name)
-    result = check_path(new_path)
-
-    if isinstance(result, dict):
-        return result
-
-    if not result:
-        os.mkdir(new_path)
-
-    return True
+    exists = os.path.isfile(path)
+    return create_message(221, data=exists, path=path)
 
 
 def create_directory(root, directory_name):
     """
     Crée un répertoire dans une racine existante.
 
-    Args:
-        root (str): Chemin du répertoire racine.
-        directory_name (str): Nom du répertoire à créer.
-
     Returns:
-        int | dict:
-            -1 si la racine n'existe pas ;
-             0 si le répertoire existe déjà ;
-             1 si le répertoire a été créé ;
-            dictionnaire si un paramètre est invalide.
+        dict: data vaut -1 si la racine est absente, 0 si le répertoire
+        existe déjà, 1 si le répertoire vient d'être créé.
+        Une erreur de validation est renvoyée sous forme de dictionnaire.
     """
     if not isinstance(root, str):
         return create_message(203)
@@ -137,106 +63,69 @@ def create_directory(root, directory_name):
     if not isinstance(directory_name, str):
         return create_message(204)
 
-    result = check_path(root)
+    root_result = check_path(root)
+    if _is_error(root_result):
+        return root_result
 
-    if result.get("data") is None:
-        return result
-
-    if not result.get("data"):
-        return create_message(224, data = -1)
+    if not root_result["data"]:
+        return create_message(223, root=root)
 
     new_path = os.path.join(root, directory_name)
-    result = check_path(new_path)
+    path_result = check_path(new_path)
 
-    if result.get("data") is None:
-        return result
+    if _is_error(path_result):
+        return path_result
 
-    if not result.get("data"):
-        os.mkdir(new_path)
-        return create_message(221, data = 1)
+    if path_result["data"]:
+        return create_message(222, path=new_path)
 
-    return create_message(222, data = 0)
+    os.mkdir(new_path)
+    return create_message(228, path=new_path)
 
-
-# --------------------------------------------------
-# Liste des fichiers et des répertoires
-# --------------------------------------------------
 
 def list_directory(root):
     """
     Liste les fichiers et les sous-répertoires d'une racine.
 
-    Args:
-        root (str): Chemin du répertoire à analyser.
-
     Returns:
-        dict | None:
-            Dictionnaire contenant les listes 'dir' et 'file'.
-            None si le répertoire n'existe pas.
-            Dictionnaire d'erreur 205 si root est invalide.
-
-    Note:
-        Les erreurs système de os.listdir ne sont pas interceptées.
+        dict: data contient les clés 'dir' et 'file'.
+        Si la racine n'existe pas, data vaut None et le message l'indique.
     """
     if not isinstance(root, str):
         return create_message(205)
 
-    result = check_path(root)
+    root_result = check_path(root)
+    if _is_error(root_result):
+        return root_result
 
-    if result.get("data") is None:
-        return result
+    if not root_result["data"]:
+        return create_message(
+            224,
+            root=root,
+            data=None,
+        ) | {"status": "ECHEC", "message": f"Le répertoire n'existe pas : {root}"}
 
-    if not result.get("data"):
-        return result
-
-    elements = {
-        "dir": [],
-        "file": []
-    }
+    elements = {"dir": [], "file": []}
 
     for element in os.listdir(root):
         element_path = os.path.join(root, element)
-        result = check_path(element_path)
-
-        if isinstance(result, dict):
-            return result
-
-        if result:
+        if os.path.isdir(element_path):
             elements["dir"].append(element)
-        else:
+        elif os.path.isfile(element_path):
             elements["file"].append(element)
 
-    return create_message(224, mode=root, data=elements)
-
+    return create_message(224, root=root, data=elements)
 
 
 def create_main_directory(root):
-    """
-    Crée le répertoire principal de l'application.
-
-    Args:
-        root (str): Chemin racine de stockage.
-
-    Returns:
-        int | dict: Code de create_directory ou dictionnaire d'erreur.
-    """
+    """Crée le répertoire principal de l'application."""
     return create_directory(root, MAIN_DIRECTORY)
 
 
 def create_trainee_space(root, name):
-    """
-    Crée le répertoire personnel d'un stagiaire.
-
-    Args:
-        root (str): Répertoire principal.
-        name (str): Nom et prénom du stagiaire.
-
-    Returns:
-        int | dict: Code de création ou dictionnaire d'erreur.
-    """
+    """Crée le répertoire personnel d'un stagiaire."""
     if not isinstance(name, str):
         return create_message(211)
-
     return create_directory(root, TRAINEE_PREFIX + name)
 
 
@@ -244,23 +133,15 @@ def create_subject_directories(root):
     """
     Crée les répertoires correspondant aux matières.
 
-    Args:
-        root (str): Répertoire personnel du stagiaire.
-
     Returns:
-        dict: Dictionnaire associant chaque matière à son résultat,
-              ou dictionnaire d'erreur 206 si root est invalide.
+        dict: Associe chaque matière au résultat de create_directory().
     """
     if not isinstance(root, str):
         return create_message(206)
 
     results = {}
-
     for subject in TRAINING_SUBJECTS:
-        result = create_directory(root, subject)
-        results[subject] = result
-
-    print(f"results: {results}")
+        results[subject] = create_directory(root, subject)
     return results
 
 
@@ -268,110 +149,152 @@ def add_trainee(root, nom_prenom):
     """
     Crée l'arborescence complète d'un stagiaire.
 
-    Args:
-        root (str): Racine de stockage.
-        nom_prenom (str): Nom et prénom du stagiaire.
-
-    Returns:
-        dict: Résultats des créations ou dictionnaire d'erreur.
+    data vaut 1 si tous les dossiers ont été créés, 0 si l'arborescence
+    existait déjà, et -1 si la création est partielle ou échoue.
     """
-    result_main = create_main_directory(root)
+    if not isinstance(root, str):
+        return create_message(203)
+    if not isinstance(nom_prenom, str):
+        return create_message(211)
 
-    if result_main.get("data") < 0:
+    result_main = create_main_directory(root)
+    if _is_error(result_main):
+        return result_main
+    if result_main.get("data") == -1:
         return result_main
 
     path_gestion_notes = os.path.join(root, MAIN_DIRECTORY)
-    result_trainee = create_trainee_space(
-        path_gestion_notes, nom_prenom
-    )
-
-    if result_trainee.get("data") < 0:
+    result_trainee = create_trainee_space(path_gestion_notes, nom_prenom)
+    if _is_error(result_trainee):
+        return result_trainee
+    if result_trainee.get("data") == -1:
         return result_trainee
 
-    path_trainee = os.path.join(
-        path_gestion_notes, TRAINEE_PREFIX + nom_prenom
+    path_trainee = os.path.join(path_gestion_notes, TRAINEE_PREFIX + nom_prenom)
+    result_subjects = create_subject_directories(path_trainee)
+
+    if _is_error(result_subjects):
+        return result_subjects
+
+    # Si un résultat de matière n'est pas un dictionnaire ou indique un
+    # échec, on conserve le détail des résultats dans le message global.
+    if any(
+        not isinstance(result, dict)
+        or result.get("status") in ("ERREUR", "ECHEC")
+        or result.get("data") == -1
+        for result in result_subjects.values()
+    ):
+        return create_message(227, trainee=nom_prenom, data=-1)
+
+    created_count = sum(
+        result.get("data") == 1 for result in result_subjects.values()
     )
 
-    result_subjects = create_subject_directories(path_trainee)
-    exists = 0
-    for subject in result_subjects:
-        # si tous les sujets sont à 1 construction réussie
-        # si tous les sujets sont à 0 arborescence existe
-        if result_subjects.get(subject).get("data")<0:
-            # si un sujet est à -1 echec
-            return create_message(227, data=0, mode=subject)
-        elif result_subjects.get(subject).get("data") == 1:
-           exists += 1
+    if created_count == len(TRAINING_SUBJECTS):
+        return create_message(225, trainee=nom_prenom, data=1)
 
-    if exists == 0:
-            return create_message(226,data=1,mode=nom_prenom)
+    if created_count == 0:
+        return create_message(226, trainee=nom_prenom, data=0)
 
-    return create_message(22,data=1,mode=nom_prenom)
+    return create_message(227, trainee=nom_prenom, data=-1)
 
 
-# --------------------------------------------------
-# Création d'un fichier
-# --------------------------------------------------
 
 def create_file(root, filename, encoding=None):
     """
     Crée un fichier dans un répertoire existant.
 
     Args:
-        root (str): Répertoire dans lequel créer le fichier.
-        filename (str): Nom du fichier.
-        encoding (str | None): Encodage demandé.
-            'utf-8' pour un fichier texte UTF-8.
+        root (str): Chemin du répertoire dans lequel créer le fichier.
+        filename (str): Nom du fichier à créer.
+        encoding (str, optional): Encodage utilisé pour créer le fichier.
 
     Returns:
-        bool | None | dict:
-            True si le fichier est créé.
-            None si le fichier existe déjà.
-            Dictionnaire d'erreur 207, 208 ou 209 si les
-            paramètres ou la racine sont invalides.
-
-    Note:
-        Les erreurs système d'ouverture ou d'écriture ne sont pas
-        interceptées.
+        dict: Résultat standardisé issu du catalogue des messages.
+              data=True  : le fichier a été créé.
+              data=None  : le fichier existe déjà.
+              data=False : une erreur système est survenue.
     """
+
+    # Vérifie que le chemin du répertoire est une chaîne de caractères.
     if not isinstance(root, str):
         return create_message(207)
 
+    # Vérifie que le nom du fichier est une chaîne de caractères.
     if not isinstance(filename, str):
         return create_message(208)
 
-    result = check_path(root)
-
-    if isinstance(result, dict):
-        return result
-
-    if not result:
+    # Vérifie que le chemin du répertoire n'est pas vide.
+    if not root.strip():
         return create_message(209, root=root)
 
+    # Vérifie que le nom du fichier n'est pas vide.
+    if not filename.strip():
+        return create_message(208)
+
+    # Vérifie l'existence et la validité du répertoire racine.
+    root_result = check_path(root)
+
+    # Si la vérification du chemin a produit une erreur,
+    # retourne directement le message correspondant du catalogue.
+    if _is_error(root_result):
+        return root_result
+
+    # Si le répertoire n'existe pas, la création du fichier est impossible.
+    if not root_result["data"]:
+        return create_message(209, root=root)
+
+    # Construit le chemin complet du fichier à créer.
+    # os.path.join() adapte la construction du chemin au système utilisé.
     new_filename = os.path.join(root, filename)
-    result = check_path(new_filename, "file")
 
-    if isinstance(result, dict):
-        return result
+    # Vérifie si le chemin obtenu correspond à un fichier existant.
+    file_result = check_path(new_filename, "file")
 
-    if result:
-        return None
+    # Si la vérification du chemin a produit une erreur,
+    # retourne le résultat obtenu sans le modifier.
+    if _is_error(file_result):
+        return file_result
 
-    if encoding == "utf-8":
-        with open(
-            new_filename, WRITE_ONLY_MODE, encoding="utf-8"
-        ):
-            pass
-    else:
-        with open(new_filename, WRITE_ONLY_MODE):
-            pass
+    # Si le fichier existe déjà, retourne le message correspondant
+    # sans tenter de créer ou de modifier ce fichier.
+    if file_result["data"]:
+        return create_message(231, path=new_filename)
 
-    return True
+    try:
+        # Si un encodage UTF-8 est demandé, ouvre le fichier
+        # avec cet encodage explicite.
+        if encoding == "utf-8":
+            with open(
+                new_filename,
+                WRITE_ONLY_MODE,
+                encoding="utf-8"
+            ):
+                # Le fichier est créé à l'ouverture.
+                # Le bloc with assure ensuite la fermeture du fichier.
+                pass
+
+        else:
+            # Si aucun encodage UTF-8 n'est demandé,
+            # utilise le mode d'ouverture défini dans la constante.
+            with open(new_filename, WRITE_ONLY_MODE):
+                # Le fichier est créé puis fermé automatiquement.
+                pass
+
+        # Retourne le message de succès défini dans le catalogue.
+        return create_message(230, path=new_filename)
+
+    except OSError as error:
+        # Intercepte les erreurs système liées à la création du fichier :
+        # droits insuffisants, chemin inaccessible, etc.
+        # Transmet les informations utiles au catalogue des messages.
+        return create_message(
+            232,
+            path=new_filename,
+            error=str(error)
+        )
 
 
-# --------------------------------------------------
-# Suppression d'un fichier
-# --------------------------------------------------
 
 def delete_file(filename):
     """
@@ -381,25 +304,43 @@ def delete_file(filename):
         filename (str): Chemin complet du fichier à supprimer.
 
     Returns:
-        bool | dict:
-            True si le fichier est supprimé.
-            False si le fichier n'existe pas.
-            Dictionnaire d'erreur 210 si filename est invalide.
-
-    Note:
-        Les erreurs système de os.remove ne sont pas interceptées.
+        dict: Résultat standardisé issu du catalogue des messages.
+              data=True  : le fichier a été supprimé.
+              data=False : le fichier est absent ou la suppression a échoué.
     """
+
+    # Vérifie que le paramètre filename est une chaîne de caractères.
+    # Si le type est invalide, retourne le message correspondant au catalogue.
     if not isinstance(filename, str):
         return create_message(210)
 
-    result = check_path(filename, "file")
+    # Vérifie que le chemin fourni correspond à un fichier.
+    # Le résultat est un dictionnaire contenant notamment la clé "data".
+    file_result = check_path(filename, "file")
 
-    if isinstance(result, dict):
-        return result
+    # Si la vérification du chemin a détecté une erreur,
+    # retourne directement le dictionnaire obtenu.
+    if _is_error(file_result):
+        return file_result
 
-    if not result:
-        return False
+    # Si le fichier n'existe pas, retourne le message du catalogue
+    # prévu pour signaler l'absence du fichier.
+    if not file_result["data"]:
+        return create_message(233, path=filename)
 
-    os.remove(filename)
+    try:
+        # Supprime le fichier situé au chemin indiqué.
+        os.remove(filename)
 
-    return True
+        # Retourne le message de succès défini dans le catalogue.
+        return create_message(234, path=filename)
+
+    except OSError as error:
+        # Intercepte les erreurs système empêchant la suppression,
+        # par exemple un accès refusé ou un fichier utilisé.
+        # Retourne un message détaillé issu du catalogue.
+        return create_message(
+            235,
+            path=filename,
+            error=str(error)
+        )

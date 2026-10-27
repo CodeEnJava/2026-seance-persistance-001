@@ -120,7 +120,7 @@ print(f"Résultat : {result}")
 print("\nTEST 5 : SUPPRESSION D'UN FICHIER")
 print("-" * 50)
 
-result = delete_file(FILE_TEST_1)
+result = delete_file(PATH_FILE_TEST_1)
 
 print("Fonction testée : delete_file")
 print(f"Résultat : {result}")
@@ -133,7 +133,7 @@ print(f"Résultat : {result}")
 print("\nTEST 6 : SUPPRESSION D'UN FICHIER INEXISTANT")
 print("-" * 50)
 
-result = delete_file(FILE_TEST_1)
+result = delete_file(PATH_FILE_TEST_1)
 
 print("Fonction testée : delete_file")
 print(f"Résultat : {result}")
